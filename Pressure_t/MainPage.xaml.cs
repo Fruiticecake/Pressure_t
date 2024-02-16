@@ -5,6 +5,7 @@ using SkiaSharp;
 using System.Collections.Generic;
 using Microsoft.Maui.Controls;
 using Pressure_t.Model;
+
 namespace Pressure_t;
 public class CombinedViewModel : INotifyPropertyChanged
 {
@@ -24,13 +25,14 @@ public partial class MainPage : ContentPage
     public MainPage()
     {
         InitializeComponent();
+        
         this.BindingContext = new CombinedViewModel
         {
             PickerCOM = new PickerCOM(),// 设置绑定上下文
             DataList = new DataStorageList()
         };
 
-        PickerCOM.SelectedIndex = 0;
+        //PickerCOM.SelectedIndex = 0;
         //chartView.Drawable = new ChartDrawable(chart);
     }
 
