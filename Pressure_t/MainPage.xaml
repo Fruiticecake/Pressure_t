@@ -2,6 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:model="clr-namespace:Pressure_t.Model"
+             xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.Maui;assembly=LiveChartsCore.SkiaSharpView.Maui"
              x:Class="Pressure_t.MainPage">
 
     <!--<ScrollView>
@@ -48,79 +49,55 @@
                      Priority="1"/>
     </ContentPage.ToolbarItems>
     <ContentPage.BindingContext>
-        <model:ClockModel/>
+        <model:DataStorageListModel/>
     </ContentPage.BindingContext>
     <VerticalStackLayout Spacing="15" Padding="20"  Background="AliceBlue" HorizontalOptions="FillAndExpand">
         <HorizontalStackLayout HeightRequest="50" Spacing="15">
             <Button x:Name="SerialCOM" Text="Serial_COM"></Button>
-            <Button x:Name="SerialCOMON" Text="ON" Clicked="OnSerialCOM"></Button>
+            <Button x:Name="SerialCOMON" Text="{Binding ButtonText}" TextColor="{Binding ButtonTextColor}" Command="{Binding ConnectCommand}"></Button>
             <Button x:Name="SerialPort" Text="Serial_Port"></Button>
-            <Picker x:Name="myPicker" WidthRequest="200"  TextColor="#FFD700" BackgroundColor="White" HorizontalTextAlignment="Center"
-                    SelectedIndex="0"
+            <Picker x:Name="PickerCOM" WidthRequest="200" ItemsSource="{Binding AvailableCOM}"
+                    TextColor="{Binding TextColor}"
+                    BackgroundColor="White"
+                    HorizontalTextAlignment="Center"
+                    SelectedIndex="{Binding ComSelectedIndex, Mode=TwoWay}"
                     FontSize="16">
-                <Picker.ItemsSource>
-                    <x:Array Type="{x:Type x:String}">
-                        <x:String>COM6:通用串行输出口</x:String>
-                        <x:String>COM13:通用串行输出口</x:String>
-                        <x:String>COM29:通用串行输出口</x:String>
-                    </x:Array>
-                </Picker.ItemsSource>
             </Picker>
-            <!--<Picker x:Name="PickerCOM" 
-                    ItemsSource="{Binding availableCOM}" 
-                     SelectedIndexChanged="OnPickerSelectedIndexChanged"
-                     WidthRequest="200"
-                     BackgroundColor="White"
-                     FontSize="16"/>-->
+
             <Button x:Name="SignalDisplay" Text="Signal_Display"></Button>
             <Button x:Name="SignalDisplayON" Text="OFF"></Button>
+            <Button x:Name="ClearAll" Text="Clear_All" WidthRequest="150" Command="{Binding DataClearAllCommand}"></Button>
 
         </HorizontalStackLayout>
         <HorizontalStackLayout >
-            <VerticalStackLayout BindingContext="DataList" Margin="5" WidthRequest="150" Spacing="10" HorizontalOptions="Center">
+            <VerticalStackLayout Margin="5" WidthRequest="150" Spacing="10" HorizontalOptions="Center">
                 <Label Text="Data_Storage" FontSize="20" Margin="10" HorizontalTextAlignment="Center" TextColor="#6600d3"></Label>
-                <ListView ItemsSource="{Binding DataItems}" HeightRequest="350" BackgroundColor="#EE82EE">
+                <ListView ItemsSource="{Binding DataItems}" SelectedItem="{Binding DataStorageListSelectedIndex}" HeightRequest="350" BackgroundColor="#EE82EE">
 
                     <ListView.ItemTemplate>
                         <DataTemplate>
-                                <Grid ColumnSpacing="0">
+                            <ViewCell>
+                                <Grid Padding="10" ColumnSpacing="10">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="65"/>
-                                        <ColumnDefinition Width="65"/>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                        
                                     </Grid.ColumnDefinitions>
-                                    <!--<Label Grid.Column="0" 
-                                       Text="{Binding Voltage}" 
-                                       FontSize="18" 
-                                       HorizontalOptions="CenterAndExpand" 
-                                       VerticalOptions="Center"
-                                       TextColor="#FFD700"/>
-                                    <Label Grid.Column="1" 
-                                       Text="{Binding Pressure}" 
-                                       FontSize="18" 
-                                       HorizontalOptions="CenterAndExpand" 
-                                       VerticalOptions="Center"
-                                       TextColor="#FFD700"/>-->
-                                    <Label Grid.Column="0" 
-                                       Text="3.3V" 
-                                       FontSize="18" 
-                                       HorizontalOptions="CenterAndExpand" 
-                                       VerticalOptions="Center"
-                                       TextColor="#FFD700"/>
-                                    <Label Grid.Column="1" 
-                                       Text="50N" 
-                                       FontSize="18" 
-                                       HorizontalOptions="CenterAndExpand" 
-                                       VerticalOptions="Center"
-                                       TextColor="#FFD700"/>
+                                    <Label Grid.Column="0" Text="{Binding Voltage, StringFormat='{0:F2} V'}" VerticalOptions="Center" />
+                                    <Label Grid.Column="1" Text="{Binding Pressure, StringFormat='{0:F1} N'}" VerticalOptions="Center" />
                                 </Grid>
+                            </ViewCell>
                         </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>
-                <Button x:Name="DataSave" Text="Data_Save"></Button>
-                <Button x:Name="DataClear" Text="Data_Clear"></Button>
+                <Button x:Name="DataSave" Text="Data_Save" Command="{Binding DataSaveCommand}"></Button>
+                <Button x:Name="DataClear" Text="Data_Clear" Command="{Binding DataClearCommand}"></Button>
             </VerticalStackLayout>
             <Frame Padding="2" CornerRadius="20" WidthRequest="700" BackgroundColor="White"  Margin="10,0,0,0" BorderColor="#EE82EE">
-                <Label></Label>
+                <lvc:CartesianChart
+                    Series="{Binding Series}"
+                    ZoomMode="X">
+                </lvc:CartesianChart>
             </Frame>
             
             <!--<GraphicsView x:Name="chartView" HeightRequest="150" WidthRequest="700" BackgroundColor="Aqua" Background="Aqua"/>-->
@@ -128,29 +105,23 @@
 
                 <HorizontalStackLayout HorizontalOptions="Center" Spacing="15">
                     <Label Text="RT_A" VerticalOptions="Center" FontSize="18" TextColor="#6600d3"/>
-                    <Entry Text="4322" IsReadOnly="True" HorizontalTextAlignment="Center" WidthRequest="70" BackgroundColor="White" TextColor="#FFD700"/>
+                    <Entry Text="{Binding RTANumeric}" IsReadOnly="True" HorizontalTextAlignment="Center" WidthRequest="70" BackgroundColor="White" TextColor="#FFD700"/>
                 </HorizontalStackLayout>
                 
                 <HorizontalStackLayout Margin="0, 0, 0, 150" HorizontalOptions="Center" VerticalOptions="Center" Spacing="15">
                     <Label Text="RT_V" VerticalOptions="Center" FontSize="18" TextColor="#6600d3"/>
-                    <Entry Text="3.3V" IsReadOnly="True" HorizontalTextAlignment="Center" WidthRequest="70" BackgroundColor="White" TextColor="#FFD700"/>
+                    <Entry Text="{Binding RTVNumeric}" IsReadOnly="True" HorizontalTextAlignment="Center" WidthRequest="70" BackgroundColor="White" TextColor="#FFD700"/>
                 </HorizontalStackLayout>
-                
+
                 <Label Text="Baud_Rate" WidthRequest="200" HorizontalTextAlignment="Center" FontSize="18" TextColor="#6600d3"/>
                 <Picker x:Name="PickerRate"
                         WidthRequest="150"
                         BackgroundColor="White"
-                        TextColor="#FFD700"
+                        TextColor="{Binding TextColor}"
                         HorizontalTextAlignment="Center"
                         FontSize="18"
-                        SelectedIndex="0">
-                    <Picker.ItemsSource>
-                        <x:Array Type="{x:Type x:String}">
-                            <x:String>57600</x:String>
-                            <x:String>115200</x:String>
-                            <x:String>230400</x:String>
-                        </x:Array>
-                    </Picker.ItemsSource>
+                        ItemsSource="{Binding BaudRate}"
+                        SelectedIndex="{Binding BaudRateSelectedIndex, Mode=TwoWay}">
                 </Picker>
                 <!--<Picker x:Name="PickerRate"
                     ItemsSource="{Binding BaudRate}" 
@@ -163,17 +134,11 @@
                 <Picker x:Name="SampleRate"
                         WidthRequest="150"
                         BackgroundColor="White"
-                        TextColor="#FFD700"
+                        TextColor="{Binding TextColor}"
                         HorizontalTextAlignment="Center"
                         FontSize="18"
-                        SelectedIndex="0">
-                    <Picker.ItemsSource>
-                        <x:Array Type="{x:Type x:String}">
-                            <x:String>500</x:String>
-                            <x:String>1000</x:String>
-                            <x:String>1500</x:String>
-                        </x:Array>
-                    </Picker.ItemsSource>
+                        ItemsSource="{Binding SampleRate}"
+                        SelectedIndex="{Binding SampleRateSelectedIndex, Mode=TwoWay}">
                 </Picker>
                 <!--<Picker x:Name="SampleRate"
                     ItemsSource="{Binding SampleRate}" 
@@ -185,17 +150,14 @@
                 <Picker x:Name="RefVolatage"
                         WidthRequest="150"
                         BackgroundColor="White"
-                        TextColor="#FFD700"
+                        TextColor="{Binding TextColor}"
                         HorizontalTextAlignment="Center"
                         FontSize="18"
-                        SelectedIndex="0">
-                    <Picker.ItemsSource>
-                        <x:Array Type="{x:Type x:String}">
-                            <x:String>3.3V</x:String>
-                            <x:String>5.0V</x:String>
-                            <x:String>220V</x:String>
-                        </x:Array>
-                    </Picker.ItemsSource>
+                        ItemsSource="{Binding RefVoltage}"
+                        SelectedIndex="{Binding RefSelectedIndex, Mode=TwoWay}">
+                    <Picker.ItemDisplayBinding>
+                        <Binding StringFormat="{}{0}V" />
+                    </Picker.ItemDisplayBinding>
                 </Picker>
 
                 <!--<Picker x:Name="RefVolatage"
