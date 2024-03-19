@@ -23,5 +23,25 @@ public partial class App : Application
         // 设置主页面
         MainPage = new NavigationPage(new MainPage(serviceProvider.GetService<DataStorageListModel>()));
 	}
+
+
+    protected override Window CreateWindow(IActivationState activationState)
+    {
+        var window = base.CreateWindow(activationState);
+
+        const int newWidth = 1130;
+        const int newHeight = 730;
+
+        window.Width = newWidth;
+        window.Height = newHeight;
+        // Get display size
+        var displayInfo = DeviceDisplay.Current.MainDisplayInfo;
+
+        // Center the window
+        window.X = (displayInfo.Width / displayInfo.Density - window.Width) / 2;
+        window.Y = (displayInfo.Height / displayInfo.Density - window.Height) / 2;
+
+        return window;
+    }
 }
 

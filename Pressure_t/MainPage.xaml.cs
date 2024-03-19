@@ -1,7 +1,5 @@
 ﻿using System.ComponentModel;
 using Pressure_t.Model;
-using LiveChartsCore;
-using LiveChartsCore.SkiaSharpView;
 
 namespace Pressure_t;
 public class CombinedViewModel : INotifyPropertyChanged
@@ -24,7 +22,7 @@ public partial class MainPage : ContentPage
     {
         InitializeComponent();
         BindingContext = DataStorageList;
-
+        //Microsoft.Maui.Controls.PlatformFeatures.AppWindow.SetPreferredMaxSize(new Windows.Foundation.Size(1200, 800));
     }
 
     public class ChartDrawable : IDrawable

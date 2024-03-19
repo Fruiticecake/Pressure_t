@@ -3,76 +3,44 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:model="clr-namespace:Pressure_t.Model"
              xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.Maui;assembly=LiveChartsCore.SkiaSharpView.Maui"
-             x:Class="Pressure_t.MainPage">
+             
+             x:Class="Pressure_t.MainPage"
+             >
 
-    <!--<ScrollView>
-        <VerticalStackLayout
-            Spacing="25"
-            Padding="30,0"
-            VerticalOptions="Center">
-
-            <Image
-                Source="dotnet_bot.png"
-                SemanticProperties.Description="Cute dot net bot waving hi to you!"
-                HeightRequest="200"
-                HorizontalOptions="Center" />
-
-            <Label
-                Text="Hello, World!"
-                SemanticProperties.HeadingLevel="Level1"
-                FontSize="32"
-                HorizontalOptions="Center" />
-
-            <Label
-                Text="Welcome to .NET Multi-platform App UI"
-                SemanticProperties.HeadingLevel="Level2"
-                SemanticProperties.Description="Welcome to dot net Multi platform App U I"
-                FontSize="18"
-                HorizontalOptions="Center" />
-
-            <Button
-                x:Name="CounterBtn"
-                Text="Click me"
-                SemanticProperties.Hint="Counts the number of times you click"
-                Clicked="OnCounterClicked"
-                HorizontalOptions="Center" />
-
-        </VerticalStackLayout>
-    </ScrollView>-->
-    <!--color AliceBlue-->
-    <ContentPage.ToolbarItems>
+    <!--ContentPage.ToolbarItems>
         <ToolbarItem Text="Button 1"
                      Order="Primary"
                      Priority="0"/>
         <ToolbarItem Text="Button 2"
                      Order="Primary"
                      Priority="1"/>
-    </ContentPage.ToolbarItems>
+    </ContentPage.ToolbarItems>-->
     <ContentPage.BindingContext>
         <model:DataStorageListModel/>
     </ContentPage.BindingContext>
-    <VerticalStackLayout Spacing="15" Padding="20"  Background="AliceBlue" HorizontalOptions="FillAndExpand">
+    <VerticalStackLayout Spacing="15" Padding="20"  Background="#F1F2F6" HorizontalOptions="FillAndExpand">
         <HorizontalStackLayout HeightRequest="50" Spacing="15">
-            <Button x:Name="SerialCOM" Text="Serial_COM"></Button>
-            <Button x:Name="SerialCOMON" Text="{Binding ButtonText}" TextColor="{Binding ButtonTextColor}" Command="{Binding ConnectCommand}"></Button>
-            <Button x:Name="SerialPort" Text="Serial_Port"></Button>
-            <Picker x:Name="PickerCOM" WidthRequest="200" ItemsSource="{Binding AvailableCOM}"
+            <Button x:Name="SerialCOM" Text="Serial_COM" BackgroundColor="#586553"></Button>
+            <Button x:Name="SerialCOMON" Text="{Binding ButtonText}" TextColor="{Binding ButtonTextColor}" Command="{Binding ConnectCommand}" BackgroundColor="#586553"></Button>
+            <Button x:Name="SerialPort" Text="Serial_Port" BackgroundColor="#586553"></Button>
+            <Picker x:Name="PickerCOM" WidthRequest="200" ItemsSource="{Binding AvailableCOM}" 
                     TextColor="{Binding TextColor}"
                     BackgroundColor="White"
                     HorizontalTextAlignment="Center"
                     SelectedIndex="{Binding ComSelectedIndex, Mode=TwoWay}"
-                    FontSize="16">
+                    FontSize="16"
+                    VerticalOptions="Center">
             </Picker>
 
-            <Button x:Name="SignalDisplay" Text="Signal_Display"></Button>
-            <Button x:Name="SignalDisplayON" Text="OFF"></Button>
-            <Button x:Name="ClearAll" Text="Clear_All" WidthRequest="150" Command="{Binding DataClearAllCommand}"></Button>
+            <Label x:Name="Mode" Text="Mode" TextColor="#273C75" VerticalTextAlignment="Center" FontSize="Title"></Label>
+            <Button x:Name="SignalDisplay" Text="{Binding ModeText}" BackgroundColor="#586553" Command="{Binding ChangeModeCommand}"></Button>
+            <Button x:Name="ClearAll" Text="Clear_All" WidthRequest="150" Command="{Binding DataClearAllCommand}" BackgroundColor="#586553"></Button>
 
         </HorizontalStackLayout>
         <HorizontalStackLayout >
             <VerticalStackLayout Margin="5" WidthRequest="150" Spacing="10" HorizontalOptions="Center">
-                <Label Text="Data_Storage" FontSize="20" Margin="10" HorizontalTextAlignment="Center" TextColor="#6600d3"></Label>
-                <ListView ItemsSource="{Binding DataItems}" SelectedItem="{Binding DataStorageListSelectedIndex}" HeightRequest="350" BackgroundColor="#EE82EE">
+                <Label Text="Data_Storage" FontSize="20" Margin="10" HorizontalTextAlignment="Center" TextColor="#273C75"></Label>
+                <ListView ItemsSource="{Binding DataItems}" SelectedItem="{Binding DataStorageListSelectedIndex}" HeightRequest="350" BackgroundColor="#718093">
 
                     <ListView.ItemTemplate>
                         <DataTemplate>
@@ -90,30 +58,66 @@
                         </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>
-                <Button x:Name="DataSave" Text="Data_Save" Command="{Binding DataSaveCommand}"></Button>
-                <Button x:Name="DataClear" Text="Data_Clear" Command="{Binding DataClearCommand}"></Button>
+                <Button x:Name="DataSave" Text="Data_Save" Command="{Binding DataSaveCommand}" BackgroundColor="#586553"></Button>
+                <Button x:Name="DataClear" Text="Data_Clear" Command="{Binding DataClearCommand}" BackgroundColor="#586553"></Button>
             </VerticalStackLayout>
-            <Frame Padding="2" CornerRadius="20" WidthRequest="700" BackgroundColor="White"  Margin="10,0,0,0" BorderColor="#EE82EE">
-                <lvc:CartesianChart
-                    Series="{Binding Series}"
-                    ZoomMode="X">
-                </lvc:CartesianChart>
-            </Frame>
             
+            <!--<Frame IsVisible="{Binding IsSingleMode}" Padding="2" CornerRadius="20" WidthRequest="700" BackgroundColor="#BDC3C7"  Margin="10,0,0,0" BorderColor="#BDC3C7">
+                <lvc:CartesianChart
+                    Series="{Binding Series}">
+                </lvc:CartesianChart>
+            </Frame>-->
+            <Frame IsVisible="{Binding IsSingleMode}" Padding="2" CornerRadius="20" WidthRequest="700" BackgroundColor="#BDC3C7" Margin="10,0,0,0" BorderColor="#BDC3C7">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="100"/>
+                    </Grid.RowDefinitions>
+
+                    <lvc:CartesianChart
+                Grid.Row="0"
+                Series="{Binding Series}"
+                XAxes="{Binding ScrollableAxes}"
+                ZoomMode="X"
+                DrawMargin="{Binding Margin}"
+                UpdateStartedCommand="{Binding ChartUpdatedCommand}">
+                    </lvc:CartesianChart>
+
+                    <lvc:CartesianChart
+                x:Name="ScrollBarChart"
+                Grid.Row="1"
+                Series="{Binding ScrollbarSeries}"
+                DrawMargin="{Binding Margin}"
+                Sections="{Binding Thumbs}"
+                XAxes="{Binding InvisibleX}"
+                YAxes="{Binding InvisibleY}"
+                PressedCommand="{Binding PointerDownCommand}"
+                MovedCommand="{Binding PointerMoveCommand}"
+                ReleasedCommand="{Binding PointerUpCommand}"
+                TooltipPosition="Hidden">
+                    </lvc:CartesianChart>
+                </Grid>
+            </Frame>
+
+
+            <Frame IsVisible="{Binding IsMartixMode}" Padding="2" CornerRadius="20" WidthRequest="700" BackgroundColor="#BDC3C7"  Margin="10,0,0,0" BorderColor="#BDC3C7">
+                <lvc:PolarChart Series="{Binding Series}" />
+            </Frame>
+
             <!--<GraphicsView x:Name="chartView" HeightRequest="150" WidthRequest="700" BackgroundColor="Aqua" Background="Aqua"/>-->
             <VerticalStackLayout Spacing="10" VerticalOptions="End">
 
                 <HorizontalStackLayout HorizontalOptions="Center" Spacing="15">
-                    <Label Text="RT_A" VerticalOptions="Center" FontSize="18" TextColor="#6600d3"/>
-                    <Entry Text="{Binding RTANumeric}" IsReadOnly="True" HorizontalTextAlignment="Center" WidthRequest="70" BackgroundColor="White" TextColor="#FFD700"/>
+                    <Label Text="RT_A" VerticalOptions="Center" FontSize="18" TextColor="#273C75"/>
+                    <Entry Text="{Binding RTANumeric}" IsReadOnly="True" HorizontalTextAlignment="Center" WidthRequest="70" BackgroundColor="White" TextColor="#B75738"/>
                 </HorizontalStackLayout>
                 
                 <HorizontalStackLayout Margin="0, 0, 0, 150" HorizontalOptions="Center" VerticalOptions="Center" Spacing="15">
-                    <Label Text="RT_V" VerticalOptions="Center" FontSize="18" TextColor="#6600d3"/>
-                    <Entry Text="{Binding RTVNumeric}" IsReadOnly="True" HorizontalTextAlignment="Center" WidthRequest="70" BackgroundColor="White" TextColor="#FFD700"/>
+                    <Label Text="RT_V" VerticalOptions="Center" FontSize="18" TextColor="#273C75"/>
+                    <Entry Text="{Binding RTVNumeric}" IsReadOnly="True" HorizontalTextAlignment="Center" WidthRequest="70" BackgroundColor="White" TextColor="#B75738"/>
                 </HorizontalStackLayout>
 
-                <Label Text="Baud_Rate" WidthRequest="200" HorizontalTextAlignment="Center" FontSize="18" TextColor="#6600d3"/>
+                <Label Text="Baud_Rate" WidthRequest="200" HorizontalTextAlignment="Center" FontSize="18" TextColor="#273C75"/>
                 <Picker x:Name="PickerRate"
                         WidthRequest="150"
                         BackgroundColor="White"
@@ -130,7 +134,7 @@
                         BackgroundColor="White" TextColor="#FFD700"/>-->
 
 
-                <Label Text="Sample_Rate" WidthRequest="200" HorizontalTextAlignment="Center" FontSize="18" TextColor="#6600d3"/>
+                <Label Text="Sample_Rate" WidthRequest="200" HorizontalTextAlignment="Center" FontSize="18" TextColor="#273C75"/>
                 <Picker x:Name="SampleRate"
                         WidthRequest="150"
                         BackgroundColor="White"
@@ -146,7 +150,7 @@
                         WidthRequest="150"
                         BackgroundColor="White" TextColor="#FFD700"/>-->
 
-                <Label Text="Ref_Volatage" WidthRequest="200" HorizontalTextAlignment="Center" FontSize="18" TextColor="#6600d3"/>
+                <Label Text="Ref_Volatage" WidthRequest="200" HorizontalTextAlignment="Center" FontSize="18" TextColor="#273C75"/>
                 <Picker x:Name="RefVolatage"
                         WidthRequest="150"
                         BackgroundColor="White"
