@@ -15,6 +15,8 @@ using LiveChartsCore.Kernel.Events;
 using LiveChartsCore.Kernel.Sketches;
 using LiveChartsCore.SkiaSharpView.Drawing;
 using CommunityToolkit.Mvvm.Input;
+using System.Runtime.CompilerServices;
+using System;
 
 namespace Pressure_t.Model
 {
@@ -32,11 +34,70 @@ namespace Pressure_t.Model
         }
     }
 
+    public class PressurePoint : INotifyPropertyChanged
+    {
+        public Color GetColorFromPressure(double pressure)
+        {
+            // 将压力值从0-10的范围转换为0-1的范围
+            pressure = Math.Clamp(pressure, 0, 10) / 10.0;
+
+            // 白色的RGB分量
+            float whiteR = 1f;
+            float whiteG = 1f;
+            float whiteB = 1f;
+
+            // 深红色的RGB分量（例如：RGB为139, 0, 0）
+            float darkRedR = 139f / 255f;
+            float darkRedG = 0f;
+            float darkRedB = 0f;
+
+            // 计算新颜色的RGB值
+            float red = whiteR + (darkRedR - whiteR) * (float)pressure;
+            float green = whiteG + (darkRedG - whiteG) * (float)pressure;
+            float blue = whiteB + (darkRedB - whiteB) * (float)pressure;
+
+            // 返回新颜色
+            return new Color(red, green, blue);
+        }
+        public Color PressureColor => GetColorFromPressure(MartixValueItem);
+        private double _martixValueitem;
+        public double MartixValueItem
+        {
+            get => _martixValueitem;
+            set
+            {
+                _martixValueitem = value;
+                OnPropertyChanged(nameof(MartixValueItem));
+                OnPropertyChanged(nameof(PressureColor));
+            }
+        }
+        public event PropertyChangedEventHandler PropertyChanged;
+        // Implement PropertyChanged as needed to support UI updates
+        protected virtual void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+    }
+
     public partial class DataStorageListModel : INotifyPropertyChanged
     {
         const double MIN_ADC_VALUE = 0;
 
+        // public ObservableCollection<PressurePoint> PressurePoints { get; set; }
+
+        private ObservableCollection<PressurePoint> _pressurePoints;
+        public ObservableCollection<PressurePoint> PressurePoints
+        {
+            get => _pressurePoints;
+            set
+            {
+                _pressurePoints = value;
+                OnPropertyChanged(nameof(PressurePoints));
+            }
+        }
+
         public PickerCOM PickerCom { get; set; }
+        
         public class DataStorage
         {
             public double Voltage { get; set; }
@@ -44,8 +105,73 @@ namespace Pressure_t.Model
             public double Pressure { get; set; }
         }
 
-
         public ObservableCollection<DataStorage> DataItems { get; set; }
+
+
+        public DataStorageListModel() { }
+
+        public DataStorageListModel(IDialogService dialogService)
+        {
+            _dialogService = dialogService;
+            PickerCOMInit();
+
+            Series = new ObservableCollection<ISeries>
+                {
+                    new LineSeries<ObservablePoint>
+                    {
+                        Values = new ObservableCollection<ObservablePoint>(),
+                        GeometryStroke = null,
+                        GeometryFill = null,
+                        DataPadding = new(0, 1)
+                    },
+
+                    new LineSeries<double>
+                    {
+                        Values = new ObservableCollection<double>(),
+                        Fill = null,
+                        //Fill = new SolidColorPaint(SKColors.CornflowerBlue)
+                    }
+                };
+
+            ScrollbarSeries = new ObservableCollection<ISeries>
+                {
+                    new LineSeries<ObservablePoint>
+                    {
+                        Values = new ObservableCollection<ObservablePoint>(),
+                        GeometryStroke = null,
+                        GeometryFill = null,
+                        DataPadding = new(0, 1)
+                    }
+                };
+
+            ScrollableAxes = new[] { new Axis() };
+
+            Thumbs = new[]
+            {
+                    new RectangularSection
+                    {
+                        Fill = new SolidColorPaint(new SKColor(255, 205, 210, 100))
+                    }
+                };
+
+            InvisibleX = new[] { new Axis { IsVisible = false } };
+            InvisibleY = new[] { new Axis { IsVisible = false } };
+
+            var auto = LiveChartsCore.Measure.Margin.Auto;
+            Margin = new(100, auto, 50, auto);
+            DataItems = new ObservableCollection<DataStorage> { };
+
+            PressurePoints = new ObservableCollection<PressurePoint>();
+            for (int i = 0; i < 18; i++)
+            {
+                PressurePoints.Add(new PressurePoint());
+            }
+
+            DataSaveCommand = new Command(OnDataSaveClicked);
+            DataClearCommand = new Command(OnDataClearClicked);
+            DataClearAllCommand = new Command(OnDataClearAllClicked);
+            ChangeModeCommand = new Command(OnModeButtonClicked);
+        }
 
         private int _comSelectedIndex;
         public int ComSelectedIndex
@@ -322,64 +448,6 @@ namespace Pressure_t.Model
         }
 
 
-        public DataStorageListModel() { }
-
-        public DataStorageListModel(IDialogService dialogService)
-        {
-            _dialogService = dialogService;
-            PickerCOMInit();
-
-            Series = new ObservableCollection<ISeries>
-                {
-                    new LineSeries<ObservablePoint>
-                    {
-                        Values = new ObservableCollection<ObservablePoint>(),
-                        GeometryStroke = null,
-                        GeometryFill = null,
-                        DataPadding = new(0, 1)
-                    },
-                    new LineSeries<double>
-                    {
-                        Values = new ObservableCollection<double>(),
-                        Fill = null,
-                        //Fill = new SolidColorPaint(SKColors.CornflowerBlue)
-                    }
-                };
-
-            ScrollbarSeries = new ObservableCollection<ISeries>
-                {
-                    new LineSeries<ObservablePoint>
-                    {
-                        Values = new ObservableCollection<ObservablePoint>(),
-                        GeometryStroke = null,
-                        GeometryFill = null,
-                        DataPadding = new(0, 1)
-                    }
-                };
-
-            ScrollableAxes = new[] { new Axis() };
-
-            Thumbs = new[]
-            {
-                    new RectangularSection
-                    {
-                        Fill = new SolidColorPaint(new SKColor(255, 205, 210, 100))
-                    }
-                };
-
-            InvisibleX = new[] { new Axis { IsVisible = false } };
-            InvisibleY = new[] { new Axis { IsVisible = false } };
-
-            var auto = LiveChartsCore.Measure.Margin.Auto;
-            Margin = new(100, auto, 50, auto);
-            DataItems = new ObservableCollection<DataStorage> { };
-
-            DataSaveCommand = new Command(OnDataSaveClicked);
-            DataClearCommand = new Command(OnDataClearClicked);
-            DataClearAllCommand = new Command(OnDataClearAllClicked);
-            ChangeModeCommand = new Command(OnModeButtonClicked);
-        }
-
         public void PickerCOMInit()
         {
             // 初始化数据源
@@ -455,6 +523,7 @@ namespace Pressure_t.Model
                 }
             }
         }
+
         public event PropertyChangedEventHandler PropertyChanged;
         // Implement PropertyChanged as needed to support UI updates
         protected virtual void OnPropertyChanged(string propertyName)
@@ -543,6 +612,7 @@ namespace Pressure_t.Model
                 _lastResetTime = DateTime.Now;
             }
         }
+
         private Queue<double> _movingAverageQueue = new Queue<double>();
         private const int MovingAveragePeriod = 3; // 移动平均的周期，可以根据需要调整
         private double _movingAverageSum = 0;
@@ -568,7 +638,6 @@ namespace Pressure_t.Model
                 UpdateRTAValue(movingAverage.ToString());
             }
         }
-
 
         private void ProcessData(string data)
         {
@@ -600,30 +669,45 @@ namespace Pressure_t.Model
         {
             if(true == IsDataSave)
             {
-                string[] values = data.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                //string[] values = data.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
                 // 使用 LINQ 将字符串数组转换为整数列表
-                var intValues = values.Select(s => {
-                    bool success = int.TryParse(s, out int result);
-                    return new { success, result };
-                })
-                .Where(x => x.success)
-                .Select(x => x.result);
-                Debug.WriteLine(string.Join(", ", values));
-                Debug.WriteLine(string.Join(", ", intValues));
-                if (Series.FirstOrDefault() is PolarLineSeries<int> polarLineSeries)
-                {
-                    polarLineSeries.Values = new ObservableCollection<int>();
-                    if (polarLineSeries.Values is ObservableCollection<int> polarvalues)
-                    {
-                        foreach (var intValue in intValues)
-                        {
-                            polarvalues.Add(intValue);
-                        }
-                        Debug.WriteLine(string.Join(", ", polarvalues));
-                    }
-                }
+                //var intValues = values.Select(s => {
+                //    bool success = int.TryParse(s, out int result);
+                //    return new { success, result };
+                //})
+                //.Where(x => x.success)
+                //.Select(x => x.result);
+                //Debug.WriteLine(string.Join(", ", values));
+                //Debug.WriteLine(string.Join(", ", intValues));
+                //if (Series.FirstOrDefault() is PolarLineSeries<int> polarLineSeries)
+                //{
+                //    polarLineSeries.Values = new ObservableCollection<int>();
+                //    if (polarLineSeries.Values is ObservableCollection<int> polarvalues)
+                //    {
+                //        foreach (var intValue in intValues)
+                //        {
+                //            polarvalues.Add(intValue);
+                //        }
+                //        Debug.WriteLine(string.Join(", ", polarvalues));
+                //    }
+                //}
                 // 通知视图更新
-                OnPropertyChanged(nameof(Series));
+                // OnPropertyChanged(nameof(Series));
+
+                string[] pressureValues = data.Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries);
+
+                if (pressureValues.Length == 18)
+                {
+                    for (int i = 0; i < 18; i++)
+                    {
+                        // 更新压力值，并通知UI
+                        // UpdatePressurePoint(i, double.Parse(pressureValues[i]));s
+                        PressurePoints[i].MartixValueItem = double.Parse(pressureValues[i]);
+                        Debug.WriteLine(PressurePoints[i].MartixValueItem);
+                        OnPropertyChanged(nameof(PressurePoints));
+                    }
+                    
+                }
             }
 
         }
@@ -815,11 +899,7 @@ namespace Pressure_t.Model
                     }
                 }
 
-
-
             }
-
-
 
             // 通知视图更新
             OnPropertyChanged(nameof(Series));
@@ -900,15 +980,13 @@ namespace Pressure_t.Model
                 Margin = new(100, auto, 50, auto);
             }
         }
+
         [RelayCommand]
         public void ChartUpdated(ChartCommandArgs args)
         {
             var cartesianChart = (ICartesianChartView<SkiaSharpDrawingContext>)args.Chart;
 
             var x = cartesianChart.XAxes.First();
-
-            // update the scroll bar thumb when the chart is updated (zoom/pan)
-            // this will let the user know the current visible range
             var thumb = Thumbs[0];
 
             thumb.Xi = x.MinLimit;
