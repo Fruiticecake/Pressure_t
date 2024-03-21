@@ -1,11 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
+
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:model="clr-namespace:Pressure_t.Model"
              xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.Maui;assembly=LiveChartsCore.SkiaSharpView.Maui"
-             
              x:Class="Pressure_t.MainPage"
+             BackgroundColor="#05bac5"
+             Title="Software"
              >
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="设置"/>
+    </ContentPage.ToolbarItems>
 
     <!--ContentPage.ToolbarItems>
         <ToolbarItem Text="Button 1"
@@ -18,11 +23,18 @@
     <ContentPage.BindingContext>
         <model:DataStorageListModel/>
     </ContentPage.BindingContext>
-    <VerticalStackLayout Spacing="15" Padding="20"  Background="#F1F2F6" HorizontalOptions="FillAndExpand">
-        <HorizontalStackLayout HeightRequest="50" Spacing="15">
-            <Button x:Name="SerialCOM" Text="Serial_COM" BackgroundColor="#586553"></Button>
-            <Button x:Name="SerialCOMON" Text="{Binding ButtonText}" TextColor="{Binding ButtonTextColor}" Command="{Binding ConnectCommand}" BackgroundColor="#586553"></Button>
-            <Button x:Name="SerialPort" Text="Serial_Port" BackgroundColor="#586553"></Button>
+
+    <VerticalStackLayout Spacing="15" Padding="5"  Background="#F1F2F6" HorizontalOptions="FillAndExpand">
+        <HorizontalStackLayout HeightRequest="60" Spacing="5" BackgroundColor="#048083">
+            <Button x:Name="SerialCOM" Text="Serial_COM" BackgroundColor="#F1F2F6" CornerRadius="0" TextColor="{StaticResource ButtonInfo_Color}" HeightRequest="55" BorderWidth="6"></Button>
+            <Button x:Name="SerialCOMON" Text="{Binding ButtonText}"
+                    TextColor="{Binding ButtonTextColor}"
+                    CornerRadius="13" Command="{Binding ConnectCommand}"
+                    BackgroundColor="#F1F2F6"
+                    HeightRequest="55" 
+                    BorderWidth="6">
+            </Button>
+            <Button x:Name="SerialPort" Text="Serial_Port" BackgroundColor="#F1F2F6" CornerRadius="0" TextColor="{StaticResource ButtonInfo_Color}" HeightRequest="55" BorderWidth="6"></Button>
             <Picker x:Name="PickerCOM" WidthRequest="200" ItemsSource="{Binding AvailableCOM}" 
                     TextColor="{Binding TextColor}"
                     BackgroundColor="White"
@@ -31,15 +43,15 @@
                     FontSize="16"
                     VerticalOptions="Center">
             </Picker>
+            <Button x:Name="Mode" Text="Mode" BackgroundColor="#F1F2F6" CornerRadius="0" TextColor="{StaticResource ButtonInfo_Color}" HeightRequest="55" BorderWidth="6"></Button>
 
-            <Label x:Name="Mode" Text="Mode" TextColor="#273C75" VerticalTextAlignment="Center" FontSize="Title"></Label>
-            <Button x:Name="SignalDisplay" Text="{Binding ModeText}" BackgroundColor="#586553" Command="{Binding ChangeModeCommand}"></Button>
-            <Button x:Name="ClearAll" Text="Clear_All" WidthRequest="150" Command="{Binding DataClearAllCommand}" BackgroundColor="#586553"></Button>
+            <Button x:Name="SignalDisplay" Text="{Binding ModeText}" TextColor="{StaticResource Button_Color}" CornerRadius="15" HeightRequest="55" BorderWidth="6" BackgroundColor="#F1F2F6" Command="{Binding ChangeModeCommand}"></Button>
+            <Button x:Name="ClearAll" Text="Clear_All" TextColor="{StaticResource Button_Color}" CornerRadius="15" HeightRequest="55" BorderWidth="6" WidthRequest="150" Command="{Binding DataClearAllCommand}" BackgroundColor="#F1F2F6"></Button>
 
         </HorizontalStackLayout>
         <HorizontalStackLayout >
             <VerticalStackLayout Margin="5" WidthRequest="150" Spacing="10" HorizontalOptions="Center">
-                <Label Text="Data_Storage" FontSize="20" Margin="10" HorizontalTextAlignment="Center" TextColor="#273C75"></Label>
+                <Label Text="Data_Storage" FontSize="20" Margin="5" HorizontalTextAlignment="Center" TextColor="{StaticResource Title_Color}"></Label>
                 <ListView ItemsSource="{Binding DataItems}" SelectedItem="{Binding DataStorageListSelectedIndex}" HeightRequest="350" BackgroundColor="#718093">
 
                     <ListView.ItemTemplate>
@@ -58,8 +70,8 @@
                         </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>
-                <Button x:Name="DataSave" Text="Data_Save" Command="{Binding DataSaveCommand}" BackgroundColor="#586553"></Button>
-                <Button x:Name="DataClear" Text="Data_Clear" Command="{Binding DataClearCommand}" BackgroundColor="#586553"></Button>
+                <Button x:Name="DataSave" Text="Data_Save" Command="{Binding DataSaveCommand}" BackgroundColor="#ebe9ef" TextColor="{StaticResource Title_Color}"></Button>
+                <Button x:Name="DataClear" Text="Data_Clear" Command="{Binding DataClearCommand}" BackgroundColor="#ebe9ef" TextColor="{StaticResource Title_Color}"></Button>
             </VerticalStackLayout>
             
             <!--<Frame IsVisible="{Binding IsSingleMode}" Padding="2" CornerRadius="20" WidthRequest="700" BackgroundColor="#BDC3C7"  Margin="10,0,0,0" BorderColor="#BDC3C7">
@@ -108,16 +120,16 @@
             <VerticalStackLayout Spacing="10" VerticalOptions="End">
 
                 <HorizontalStackLayout HorizontalOptions="Center" Spacing="15">
-                    <Label Text="RT_A" VerticalOptions="Center" FontSize="18" TextColor="#273C75"/>
-                    <Entry Text="{Binding RTANumeric}" IsReadOnly="True" HorizontalTextAlignment="Center" WidthRequest="70" BackgroundColor="White" TextColor="#B75738"/>
+                    <Label Text="RT_P" VerticalOptions="Center" FontSize="18" TextColor="{StaticResource Title_Color}"/>
+                    <Entry Text="{Binding PressureNumeric, StringFormat='{0:F1} N'}" IsReadOnly="True" HorizontalTextAlignment="Center" WidthRequest="70" BackgroundColor="White" TextColor="#B75738"/>
                 </HorizontalStackLayout>
                 
                 <HorizontalStackLayout Margin="0, 0, 0, 150" HorizontalOptions="Center" VerticalOptions="Center" Spacing="15">
-                    <Label Text="RT_V" VerticalOptions="Center" FontSize="18" TextColor="#273C75"/>
-                    <Entry Text="{Binding RTVNumeric}" IsReadOnly="True" HorizontalTextAlignment="Center" WidthRequest="70" BackgroundColor="White" TextColor="#B75738"/>
+                    <Label Text="RT_V" VerticalOptions="Center" FontSize="18" TextColor="{StaticResource Title_Color}"/>
+                    <Entry Text="{Binding RTVNumeric, StringFormat='{0:F2} V'}" IsReadOnly="True" HorizontalTextAlignment="Center" WidthRequest="70" BackgroundColor="White" TextColor="#B75738"/>
                 </HorizontalStackLayout>
 
-                <Label Text="Baud_Rate" WidthRequest="200" HorizontalTextAlignment="Center" FontSize="18" TextColor="#273C75"/>
+                <Label Text="Baud_Rate" WidthRequest="200" HorizontalTextAlignment="Center" FontSize="18" TextColor="{StaticResource Title_Color}"/>
                 <Picker x:Name="PickerRate"
                         WidthRequest="150"
                         BackgroundColor="White"
@@ -134,7 +146,7 @@
                         BackgroundColor="White" TextColor="#FFD700"/>-->
 
 
-                <Label Text="Sample_Rate" WidthRequest="200" HorizontalTextAlignment="Center" FontSize="18" TextColor="#273C75"/>
+                <Label Text="Sample_Rate" WidthRequest="200" HorizontalTextAlignment="Center" FontSize="18" TextColor="{StaticResource Title_Color}"/>
                 <Picker x:Name="SampleRate"
                         WidthRequest="150"
                         BackgroundColor="White"
@@ -150,7 +162,7 @@
                         WidthRequest="150"
                         BackgroundColor="White" TextColor="#FFD700"/>-->
 
-                <Label Text="Ref_Volatage" WidthRequest="200" HorizontalTextAlignment="Center" FontSize="18" TextColor="#273C75"/>
+                <Label Text="Ref_Volatage" WidthRequest="200" HorizontalTextAlignment="Center" FontSize="18" TextColor="{StaticResource Title_Color}"/>
                 <Picker x:Name="RefVolatage"
                         WidthRequest="150"
                         BackgroundColor="White"

@@ -187,7 +187,7 @@ namespace Pressure_t.Model
 
         private string _buttonText = "ON";
         private bool _isSerialPortOpen = false;
-        private Color _buttonTextColor = Color.FromRgba("#FFFFFF");
+        private Color _buttonTextColor = Color.FromRgba("#000000");
         private Color _textColor = Color.FromRgba("#000000");
 
         public string ButtonText
@@ -346,7 +346,11 @@ namespace Pressure_t.Model
                         GeometryStroke = null,
                         GeometryFill = null,
                         DataPadding = new(0, 1)
-                    }
+                    },
+                    new LineSeries<double>
+                    {
+                        Values = new ObservableCollection<double>{},
+                    },
                 };
 
             ScrollbarSeries = new ObservableCollection<ISeries>
@@ -483,8 +487,9 @@ namespace Pressure_t.Model
                         _serialPort.Open();
                         ButtonText = "OFF";
                         _isSerialPortOpen = true;
-                        ButtonTextColor = Color.FromRgba("#FFD700");
-                        TextColor = Color.FromRgba("#FFD700");
+                        
+                        ButtonTextColor = Color.FromRgb(0, 255, 0);
+                        TextColor = Color.FromRgb(0, 255, 0);
                         await _dialogService.ShowAlertAsync("Connection", $"{selectedPort} 打开成功", "确认", "关闭");
                         // 可以在这里添加更多的设置，比如串口的参数等
 
@@ -504,7 +509,7 @@ namespace Pressure_t.Model
                         _serialPort.Close();
                         ButtonText = "ON";
                         _isSerialPortOpen = false;
-                        ButtonTextColor = Color.FromRgba("#FFFFFF");
+                        ButtonTextColor = Color.FromRgba("#000000");
                         TextColor = Color.FromRgba("#000000");
                         await _dialogService.ShowAlertAsync("Disconnection", $"{selectedPort} 关闭成功", "确认", "关闭");
                         // 可以在这里添加更多的设置，比如串口的参数等
