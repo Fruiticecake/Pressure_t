@@ -550,8 +550,33 @@ namespace Pressure_t.Model
                 _lastResetTime = DateTime.Now;
             }
         }
+        private Queue<double> _movingAverageQueue = new Queue<double>();
+        private const int MovingAveragePeriod = 3; // 移动平均的周期，可以根据需要调整
+        private double _movingAverageSum = 0;
 
-        [Obsolete]
+        private void MovingAverageFilter(string value)
+        {
+            if (double.TryParse(value, out double numericValue))
+            {
+                // 将新值添加到队列中
+                _movingAverageQueue.Enqueue(numericValue);
+                _movingAverageSum += numericValue;
+
+                // 如果队列中的元素数量超过了设定的周期，则移除最旧的元素
+                if (_movingAverageQueue.Count > MovingAveragePeriod)
+                {
+                    _movingAverageSum -= _movingAverageQueue.Dequeue();
+                }
+
+                // 计算移动平均
+                double movingAverage = _movingAverageSum / _movingAverageQueue.Count;
+
+                // 更新移动平均值
+                UpdateRTAValue(movingAverage.ToString());
+            }
+        }
+
+
         private void ProcessData(string data)
         {
             if (true == IsSingleMode)
@@ -561,15 +586,14 @@ namespace Pressure_t.Model
 
                 foreach (var value in values)
                 {
-                    if (double.TryParse(value.Trim(), out double numericValue))
+                    MainThread.BeginInvokeOnMainThread(() =>
                     {
-                        // 使用 Dispatcher 来更新 UI，以确保线程安全
-                        Device.BeginInvokeOnMainThread(() =>
-                        {
-                            UpdateMaxValue(numericValue); // 更新最大值
-                        });
-                    }
-                    UpdateRTAValue(_maxValue.ToString());
+                        // UpdateMaxValue(numericValue); // 更新最大值
+                        // UpdateRTAValue(_maxValue.ToString()); // 更新 RTA 值
+                        MovingAverageFilter(value);
+
+                    });
+
                 }
             }
             else
