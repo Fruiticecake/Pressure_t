@@ -329,15 +329,6 @@ namespace Pressure_t.Model
             _dialogService = dialogService;
             PickerCOMInit();
 
-            //Series = new ObservableCollection<ISeries>
-            //{
-            //    new LineSeries<double>
-            //    {
-            //        Values = new ObservableCollection<double>(),
-            //        Fill = new SolidColorPaint(SKColors.CornflowerBlue)
-            //    }
-            //};
-
             Series = new ObservableCollection<ISeries>
                 {
                     new LineSeries<ObservablePoint>
@@ -349,8 +340,9 @@ namespace Pressure_t.Model
                     },
                     new LineSeries<double>
                     {
-                        Values = new ObservableCollection<double>{},
-                    },
+                        Values = new ObservableCollection<double>(),
+                        Fill = new SolidColorPaint(SKColors.CornflowerBlue)
+                    }
                 };
 
             ScrollbarSeries = new ObservableCollection<ISeries>
@@ -668,7 +660,15 @@ namespace Pressure_t.Model
                         values.Add(_values);
                     }
                 }
-                
+                if (Series.FirstOrDefault() is LineSeries<double> lineDoubleSeries)
+                {
+                    if (lineDoubleSeries.Values is ObservableCollection<double> values)
+                    {
+                        values.Add(RTVNumeric);
+                    }
+                }
+
+
                 if (ScrollbarSeries.FirstOrDefault() is LineSeries<ObservablePoint> scrollbarSeries)
                 {
                     if (scrollbarSeries.Values is ObservableCollection<ObservablePoint> values)
@@ -676,6 +676,8 @@ namespace Pressure_t.Model
                         values.Add(_values);
                     }
                 }
+
+
             }
 
         }
@@ -698,7 +700,7 @@ namespace Pressure_t.Model
             }
         }
 
-        private void OnDataSaveClicked()
+        private async void OnDataSaveClicked()
         {
             //DataItems.Add(new DataStorage { Voltage = RTVNumeric, ValueOfADC = RTANumeric, Pressure = PressureNumeric });
 
@@ -709,15 +711,23 @@ namespace Pressure_t.Model
             //        values.Add(PressureNumeric);
             //    }
             //}
-            IsDataSave = !IsDataSave;
+            bool replay;
             // 通知视图更新
-            if(true == IsDataSave)
+            if(false == IsDataSave)
             {
-                _dialogService.ShowAlertAsync("DataSave", "开始保存数据", "确认", "关闭");
+                replay = await _dialogService.ShowAlertAsync("DataSave", "是否开始保存数据", "确认", "取消");
+                if (replay)
+                {
+                    IsDataSave = true;
+                }
             }
             else
             {
-                _dialogService.ShowAlertAsync("DataSave", "停止保存数据", "确认", "关闭");
+                replay = await _dialogService.ShowAlertAsync("DataSave", "是否停止保存数据", "确认", "取消");
+                if (replay)
+                {
+                    IsDataSave = false;
+                }
             }
             
             OnPropertyChanged(nameof(Series));
@@ -795,6 +805,15 @@ namespace Pressure_t.Model
                         values.Clear();
                     }
                 }
+
+                if (Series.FirstOrDefault() is LineSeries<double> lineDoubleSeries)
+                {
+                    if (lineDoubleSeries.Values is ObservableCollection<double> values)
+                    {
+                        values.Clear();
+                    }
+                }
+
             }
 
 
@@ -842,6 +861,11 @@ namespace Pressure_t.Model
                         GeometryStroke = null,
                         GeometryFill = null,
                         DataPadding = new(0, 1)
+                    },
+                    new LineSeries<double>
+                    {
+                        Values = new ObservableCollection<double>(),
+                        Fill = new SolidColorPaint(SKColors.CornflowerBlue)
                     }
                 };
 
