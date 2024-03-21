@@ -26,15 +26,16 @@
 
     <VerticalStackLayout Spacing="15" Padding="5"  Background="#F1F2F6" HorizontalOptions="FillAndExpand">
         <HorizontalStackLayout HeightRequest="60" Spacing="5" BackgroundColor="#048083">
-            <Button x:Name="SerialCOM" Text="Serial_COM" BackgroundColor="#F1F2F6" CornerRadius="0" TextColor="{StaticResource ButtonInfo_Color}" HeightRequest="55" BorderWidth="6"></Button>
+            <Label x:Name="SerialCOM" Text="Serial_COM" BackgroundColor="#F1F2F6"  TextColor="{StaticResource ButtonInfo_Color}" FontAttributes="Bold" Margin="5,0,5,0" Padding="5" HeightRequest="40" VerticalTextAlignment="Center"></Label>
             <Button x:Name="SerialCOMON" Text="{Binding ButtonText}"
                     TextColor="{Binding ButtonTextColor}"
                     CornerRadius="13" Command="{Binding ConnectCommand}"
-                    BackgroundColor="#F1F2F6"
-                    HeightRequest="55" 
-                    BorderWidth="6">
+                    BackgroundColor="#cfd8dc"
+                    HeightRequest="46"
+                    WidthRequest="70"
+                    BorderWidth="2">
             </Button>
-            <Button x:Name="SerialPort" Text="Serial_Port" BackgroundColor="#F1F2F6" CornerRadius="0" TextColor="{StaticResource ButtonInfo_Color}" HeightRequest="55" BorderWidth="6"></Button>
+            <Label x:Name="SerialPort" Text="Serial_Port" BackgroundColor="#F1F2F6" TextColor="{StaticResource ButtonInfo_Color}" FontAttributes="Bold" Margin="5,0,5,0" Padding="5" HeightRequest="40" VerticalTextAlignment="Center" ></Label>
             <Picker x:Name="PickerCOM" WidthRequest="200" ItemsSource="{Binding AvailableCOM}" 
                     TextColor="{Binding TextColor}"
                     BackgroundColor="White"
@@ -43,10 +44,10 @@
                     FontSize="16"
                     VerticalOptions="Center">
             </Picker>
-            <Button x:Name="Mode" Text="Mode" BackgroundColor="#F1F2F6" CornerRadius="0" TextColor="{StaticResource ButtonInfo_Color}" HeightRequest="55" BorderWidth="6"></Button>
+            <Label x:Name="Mode" Text="Mode" BackgroundColor="#F1F2F6" TextColor="{StaticResource ButtonInfo_Color}" FontAttributes="Bold" Margin="5,0,5,0" Padding="5" HeightRequest="40" VerticalTextAlignment="Center"></Label>
 
-            <Button x:Name="SignalDisplay" Text="{Binding ModeText}" TextColor="{StaticResource Button_Color}" CornerRadius="15" HeightRequest="55" BorderWidth="6" BackgroundColor="#F1F2F6" Command="{Binding ChangeModeCommand}"></Button>
-            <Button x:Name="ClearAll" Text="Clear_All" TextColor="{StaticResource Button_Color}" CornerRadius="15" HeightRequest="55" BorderWidth="6" WidthRequest="150" Command="{Binding DataClearAllCommand}" BackgroundColor="#F1F2F6"></Button>
+            <Button x:Name="SignalDisplay" Text="{Binding ModeText}" TextColor="{StaticResource Button_Color}" CornerRadius="15" HeightRequest="46" BorderWidth="2" BackgroundColor="#cfd8dc" Command="{Binding ChangeModeCommand}"></Button>
+            <Button x:Name="ClearAll" Text="Clear_All" TextColor="{StaticResource Button_Color}" CornerRadius="15" HeightRequest="46" BorderWidth="2" WidthRequest="100" Command="{Binding DataClearAllCommand}" BackgroundColor="#cfd8dc"></Button>
 
         </HorizontalStackLayout>
         <HorizontalStackLayout >

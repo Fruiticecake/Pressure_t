@@ -341,7 +341,8 @@ namespace Pressure_t.Model
                     new LineSeries<double>
                     {
                         Values = new ObservableCollection<double>(),
-                        Fill = new SolidColorPaint(SKColors.CornflowerBlue)
+                        Fill = null,
+                        //Fill = new SolidColorPaint(SKColors.CornflowerBlue)
                     }
                 };
 
@@ -653,14 +654,15 @@ namespace Pressure_t.Model
                 //    }
                 //}
                 ObservablePoint _values = new ObservablePoint(++numCount, PressureNumeric);
-                if (Series.FirstOrDefault() is LineSeries<ObservablePoint> lineSeries)
+                if (Series[0] is LineSeries<ObservablePoint> lineSeries)
                 {
                     if (lineSeries.Values is ObservableCollection<ObservablePoint> values)
                     {
                         values.Add(_values);
                     }
                 }
-                if (Series.FirstOrDefault() is LineSeries<double> lineDoubleSeries)
+                
+                if (Series[1] is LineSeries<double> lineDoubleSeries)
                 {
                     if (lineDoubleSeries.Values is ObservableCollection<double> values)
                     {
@@ -782,9 +784,16 @@ namespace Pressure_t.Model
                 RTANumeric = 0;
                 RTVNumeric = 0;
                 numCount = 0;
-                if (Series.FirstOrDefault() is LineSeries<ObservablePoint> lineSeries)
+                if (Series[0] is LineSeries<ObservablePoint> lineSeries)
                 {
                     if (lineSeries.Values is ObservableCollection<ObservablePoint> values)
+                    {
+                        values.Clear();
+                    }
+                }
+                if (Series[1] is LineSeries<double> lineDoubleSeries)
+                {
+                    if (lineDoubleSeries.Values is ObservableCollection<double> values)
                     {
                         values.Clear();
                     }
@@ -806,13 +815,7 @@ namespace Pressure_t.Model
                     }
                 }
 
-                if (Series.FirstOrDefault() is LineSeries<double> lineDoubleSeries)
-                {
-                    if (lineDoubleSeries.Values is ObservableCollection<double> values)
-                    {
-                        values.Clear();
-                    }
-                }
+
 
             }
 
