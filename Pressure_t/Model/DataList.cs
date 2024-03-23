@@ -17,6 +17,7 @@ using LiveChartsCore.SkiaSharpView.Drawing;
 using CommunityToolkit.Mvvm.Input;
 using System.Runtime.CompilerServices;
 using System;
+using System.Reflection.Metadata;
 
 namespace Pressure_t.Model
 {
@@ -39,7 +40,7 @@ namespace Pressure_t.Model
         public Color GetColorFromPressure(double pressure)
         {
             // 将压力值从0-10的范围转换为0-1的范围
-            pressure = Math.Clamp(pressure, 0, 10) / 10.0;
+            pressure = Math.Clamp(pressure, 0, 4095) / 4000.0;
 
             // 白色的RGB分量
             float whiteR = 1f;
@@ -82,6 +83,10 @@ namespace Pressure_t.Model
     public partial class DataStorageListModel : INotifyPropertyChanged
     {
         const double MIN_ADC_VALUE = 0;
+        public Color OnButtonActiveColor = Color.FromRgb(0, 255, 0);
+        public Color OnButtonNormalColor = Color.FromRgb(0, 0, 0);
+        public Color OnMartixActiveColor = Color.FromRgb(30, 144, 255);
+        public Color OnMartixNormalColor = Color.FromRgb(211, 211, 211);
 
         // public ObservableCollection<PressurePoint> PressurePoints { get; set; }
 
@@ -166,7 +171,7 @@ namespace Pressure_t.Model
             {
                 PressurePoints.Add(new PressurePoint());
             }
-
+            MartixSettingCommand = new Command<string>(OnMartixSettingCommand);
             DataSaveCommand = new Command(OnDataSaveClicked);
             DataClearCommand = new Command(OnDataClearClicked);
             DataClearAllCommand = new Command(OnDataClearAllClicked);
@@ -263,6 +268,8 @@ namespace Pressure_t.Model
         public ICommand DataClearCommand { get; private set; }
         public ICommand DataClearAllCommand { get; private set; }
         public ICommand ChangeModeCommand { get; private set; }
+        public ICommand MartixSettingCommand { get; private set; }
+
 
         private IDialogService _dialogService;
 
@@ -315,6 +322,10 @@ namespace Pressure_t.Model
         private bool _isSerialPortOpen = false;
         private Color _buttonTextColor = Color.FromRgba("#000000");
         private Color _textColor = Color.FromRgba("#000000");
+        private Color _buttonTextColor_MartixLeft = Color.FromRgba("#000000");
+        private Color _buttonTextColor_MartixRight = Color.FromRgba("#000000");
+        private Color _martixLeftBgColor = Color.FromRgba("#bdc3c7");
+        private Color _martixRightBgColor = Color.FromRgba("#bdc3c7");
 
         public string ButtonText
         {
@@ -325,6 +336,58 @@ namespace Pressure_t.Model
                 {
                     _buttonText = value;
                     OnPropertyChanged(nameof(ButtonText));
+                }
+            }
+        }
+
+        public Color ButtonTextColor_MartixRight
+        {
+            get => _buttonTextColor_MartixRight;
+            set
+            {
+                if (_buttonTextColor_MartixRight != value)
+                {
+                    _buttonTextColor_MartixRight = value;
+                    OnPropertyChanged(nameof(ButtonTextColor_MartixRight));
+                }
+            }
+        }
+
+        public Color ButtonTextColor_MartixLeft
+        {
+            get => _buttonTextColor_MartixLeft;
+            set
+            {
+                if (_buttonTextColor_MartixLeft != value)
+                {
+                    _buttonTextColor_MartixLeft = value;
+                    OnPropertyChanged(nameof(ButtonTextColor_MartixLeft));
+                }
+            }
+        }
+
+        public Color MartixLeftBgColor
+        {
+            get => _martixLeftBgColor;
+            set
+            {
+                if (_martixLeftBgColor != value)
+                {
+                    _martixLeftBgColor = value;
+                    OnPropertyChanged(nameof(MartixLeftBgColor));
+                }
+            }
+        }
+
+        public Color MartixRightBgColor
+        {
+            get => _martixRightBgColor;
+            set
+            {
+                if (_martixRightBgColor != value)
+                {
+                    _martixRightBgColor = value;
+                    OnPropertyChanged(nameof(MartixRightBgColor));
                 }
             }
         }
@@ -341,6 +404,7 @@ namespace Pressure_t.Model
                 }
             }
         }
+
 
         public Color TextColor
         {
@@ -447,7 +511,27 @@ namespace Pressure_t.Model
             }
         }
 
+        private bool _isRightFoot = false;
+        public bool IsRightFoot
+        {
+            get => _isRightFoot;
+            set
+            {
+                _isRightFoot = value;
+                OnPropertyChanged(nameof(IsRightFoot));
+            }
+        }
 
+        private bool _isLeftFoot = false;
+        public bool IsLeftFoot
+        {
+            get => _isLeftFoot;
+            set
+            {
+                _isLeftFoot = value;
+                OnPropertyChanged(nameof(IsLeftFoot));
+            }
+        }
         public void PickerCOMInit()
         {
             // 初始化数据源
@@ -550,8 +634,8 @@ namespace Pressure_t.Model
                         ButtonText = "OFF";
                         _isSerialPortOpen = true;
                         
-                        ButtonTextColor = Color.FromRgb(0, 255, 0);
-                        TextColor = Color.FromRgb(0, 255, 0);
+                        ButtonTextColor = OnButtonActiveColor;
+                        TextColor = OnButtonActiveColor;
                         await _dialogService.ShowAlertAsync("Connection", $"{selectedPort} 打开成功", "确认", "关闭");
                         // 可以在这里添加更多的设置，比如串口的参数等
 
@@ -1024,6 +1108,43 @@ namespace Pressure_t.Model
         {
             _isDown = false;
         }
+
+        private void OnMartixSettingCommand(string parameter)
+        {
+            switch (parameter)
+            {
+                case "MartixSettingLeft":
+                    if (true == IsLeftFoot)
+                    {
+                        IsLeftFoot = false;
+                        ButtonTextColor_MartixLeft = OnButtonNormalColor;
+                        MartixLeftBgColor = OnMartixNormalColor;
+                    }
+                    else
+                    {
+                        IsLeftFoot = true;
+                        ButtonTextColor_MartixLeft = OnButtonActiveColor;
+                        MartixLeftBgColor = OnMartixActiveColor;
+                    }
+                    
+                    break;
+                case "MartixSettingRight":
+                    if (true == IsRightFoot)
+                    {
+                        IsRightFoot = false;
+                        ButtonTextColor_MartixRight = OnButtonNormalColor;
+                        MartixRightBgColor = OnMartixNormalColor;
+                    }
+                    else
+                    {
+                        IsRightFoot = true;
+                        ButtonTextColor_MartixRight = OnButtonActiveColor;
+                        MartixRightBgColor= OnMartixActiveColor;
+                    }
+                    break;
+            }
+        }
+
     }
 
 
