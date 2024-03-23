@@ -18,6 +18,7 @@ using CommunityToolkit.Mvvm.Input;
 using System.Runtime.CompilerServices;
 using System;
 using System.Reflection.Metadata;
+using Microsoft.Maui.Graphics;
 
 namespace Pressure_t.Model
 {
@@ -35,6 +36,34 @@ namespace Pressure_t.Model
         }
     }
 
+    public class FootDrawable : IDrawable
+    {
+        public void Draw(ICanvas canvas, RectF dirtyRect)
+        {
+            canvas.SaveState();
+
+            // 设置画笔颜色
+            canvas.StrokeColor = Colors.Black;
+            canvas.FillColor = Colors.LightBlue;
+
+            // 绘制左脚的轮廓，你需要根据实际需要调整路径
+            PathF path = new PathF();
+            path.MoveTo(100, 100); // 移动到起始点
+            path.LineTo(150, 100); // 脚后跟到脚踝
+            path.QuadTo(180, 90, 200, 120); // 脚踝到脚背
+            path.QuadTo(160, 180, 130, 120); // 脚背到大脚趾
+            path.QuadTo(120, 140, 110, 120); // 大脚趾到第二脚趾
+            path.QuadTo(100, 140, 90, 120); // 第二脚趾到第三脚趾
+            path.QuadTo(80, 140, 70, 120); // 第三脚趾到第四脚趾
+            path.QuadTo(60, 140, 50, 120); // 第四脚趾到小脚趾
+            path.QuadTo(40, 180, 100, 100); // 小脚趾回到脚后跟
+
+            // 使用路径绘制形状
+            canvas.DrawPath(path);
+
+            canvas.RestoreState();
+        }
+    }
     public class PressurePoint : INotifyPropertyChanged
     {
         public Color GetColorFromPressure(double pressure)

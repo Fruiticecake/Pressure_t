@@ -22,6 +22,7 @@ public partial class MainPage : ContentPage
     {
         InitializeComponent();
         BindingContext = DataStorageList;
+        //footGraphicsView.Drawable = new FootDrawable();
         //Microsoft.Maui.Controls.PlatformFeatures.AppWindow.SetPreferredMaxSize(new Windows.Foundation.Size(1200, 800));
     }
 
