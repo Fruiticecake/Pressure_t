@@ -52,7 +52,7 @@
         <HorizontalStackLayout >
             <VerticalStackLayout Margin="5" WidthRequest="150" Spacing="10" HorizontalOptions="Center">
                 <Label Text="Data_Storage" FontSize="20" Margin="5" HorizontalTextAlignment="Center" TextColor="{StaticResource Title_Color}"></Label>
-                <ListView ItemsSource="{Binding DataItems}" SelectedItem="{Binding DataStorageListSelectedIndex}" HeightRequest="350" BackgroundColor="#718093">
+                <ListView ItemsSource="{Binding DataItems}" SelectedItem="{Binding DataExcelPathListSelectedIndex}" HeightRequest="350" BackgroundColor="#718093">
 
                     <ListView.ItemTemplate>
                         <DataTemplate>
@@ -60,11 +60,8 @@
                                 <Grid Padding="10" ColumnSpacing="10">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="*" />
-                                        
                                     </Grid.ColumnDefinitions>
-                                    <Label Grid.Column="0" Text="{Binding Voltage, StringFormat='{0:F2} V'}" VerticalOptions="Center" />
-                                    <Label Grid.Column="1" Text="{Binding Pressure, StringFormat='{0:F1} N'}" VerticalOptions="Center" />
+                                    <Label Grid.Column="0" Text="{Binding ExcelPath}" VerticalOptions="Center" />
                                 </Grid>
                             </ViewCell>
                         </DataTemplate>
@@ -80,7 +77,7 @@
                 </lvc:CartesianChart>
             </Frame>-->
             <Frame IsVisible="{Binding IsSingleMode}" Padding="2" CornerRadius="20" WidthRequest="700" BackgroundColor="#BDC3C7" Margin="10,0,0,0" BorderColor="#BDC3C7">
-                <Grid>
+                <Grid >
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="100"/>
@@ -94,7 +91,7 @@
                         DrawMargin="{Binding Margin}"
                         UpdateStartedCommand="{Binding ChartUpdatedCommand}">
                     </lvc:CartesianChart>
-
+                    
                     <lvc:CartesianChart
                         x:Name="ScrollBarChart"
                         Grid.Row="1"
@@ -106,7 +103,11 @@
                         PressedCommand="{Binding PointerDownCommand}"
                         MovedCommand="{Binding PointerMoveCommand}"
                         ReleasedCommand="{Binding PointerUpCommand}"
-                        TooltipPosition="Hidden">
+                        TooltipPosition="Hidden"
+                        LegendPosition="Left"
+                        LegendTextPaint="{Binding LegendTextPaint}"
+                        >
+                        
                     </lvc:CartesianChart>
                 </Grid>
             </Frame>
@@ -305,12 +306,12 @@
 
                 <HorizontalStackLayout HorizontalOptions="Center" Spacing="15">
                     <Label Text="RT_P" VerticalOptions="Center" FontSize="18" TextColor="{StaticResource Title_Color}"/>
-                    <Entry Text="{Binding PressureNumeric, StringFormat='{0:F1} N'}" IsReadOnly="True" HorizontalTextAlignment="Center" WidthRequest="70" BackgroundColor="White" TextColor="#B75738"/>
+                    <Entry Text="{Binding PressureNumeric}" IsReadOnly="True" HorizontalTextAlignment="Center" WidthRequest="70" BackgroundColor="White" TextColor="#B75738"/>
                 </HorizontalStackLayout>
                 
                 <HorizontalStackLayout Margin="0, 0, 0, 10" HorizontalOptions="Center" VerticalOptions="Center" Spacing="15">
                     <Label Text="RT_V" VerticalOptions="Center" FontSize="18" TextColor="{StaticResource Title_Color}"/>
-                    <Entry Text="{Binding RTVNumeric, StringFormat='{0:F2} V'}" IsReadOnly="True" HorizontalTextAlignment="Center" WidthRequest="70" BackgroundColor="White" TextColor="#B75738"/>
+                    <Entry Text="{Binding RTVNumeric}" IsReadOnly="True" HorizontalTextAlignment="Center" WidthRequest="70" BackgroundColor="White" TextColor="#B75738"/>
                 </HorizontalStackLayout>
                 <Button x:Name="SetMartixLeft" Text="设置为左脚"
                     TextColor="{Binding ButtonTextColor_MartixLeft}"

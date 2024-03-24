@@ -19,6 +19,8 @@ using System.Runtime.CompilerServices;
 using System;
 using System.Reflection.Metadata;
 using Microsoft.Maui.Graphics;
+using ClosedXML.Excel;
+using System.Linq;
 
 namespace Pressure_t.Model
 {
@@ -132,15 +134,21 @@ namespace Pressure_t.Model
 
         public PickerCOM PickerCom { get; set; }
         
-        public class DataStorage
+        //public class DataStorage
+        //{
+        //    public double Voltage { get; set; }
+        //    public double ValueOfADC { get; set; }
+        //    public double Pressure { get; set; }
+        //}
+
+        // public ObservableCollection<DataStorage> DataItems { get; set; }
+
+        public class DataExcelPath
         {
-            public double Voltage { get; set; }
-            public double ValueOfADC { get; set; }
-            public double Pressure { get; set; }
+            public string ExcelPath { get; set; }
         }
 
-        public ObservableCollection<DataStorage> DataItems { get; set; }
-
+        public ObservableCollection<DataExcelPath> DataItems { get; set; }
 
         public DataStorageListModel() { }
 
@@ -153,6 +161,7 @@ namespace Pressure_t.Model
                 {
                     new LineSeries<ObservablePoint>
                     {
+                        Name = "压力/N",
                         Values = new ObservableCollection<ObservablePoint>(),
                         GeometryStroke = null,
                         GeometryFill = null,
@@ -161,6 +170,7 @@ namespace Pressure_t.Model
 
                     new LineSeries<double>
                     {
+                        Name = "电压/V",
                         Values = new ObservableCollection<double>(),
                         Fill = null,
                         //Fill = new SolidColorPaint(SKColors.CornflowerBlue)
@@ -171,10 +181,17 @@ namespace Pressure_t.Model
                 {
                     new LineSeries<ObservablePoint>
                     {
+                        Name = "压力/N",
                         Values = new ObservableCollection<ObservablePoint>(),
                         GeometryStroke = null,
                         GeometryFill = null,
                         DataPadding = new(0, 1)
+                    },
+                    new LineSeries<double>
+                    {
+                        Name = "电压/V",
+                        Values = new ObservableCollection<double>(),
+                        Fill = new SolidColorPaint(SKColors.CornflowerBlue)
                     }
                 };
 
@@ -193,7 +210,8 @@ namespace Pressure_t.Model
 
             var auto = LiveChartsCore.Measure.Margin.Auto;
             Margin = new(100, auto, 50, auto);
-            DataItems = new ObservableCollection<DataStorage> { };
+            // DataItems = new ObservableCollection<DataStorage> { };
+            DataItems = new ObservableCollection<DataExcelPath> { };
 
             PressurePoints = new ObservableCollection<PressurePoint>();
             for (int i = 0; i < 18; i++)
@@ -206,6 +224,13 @@ namespace Pressure_t.Model
             DataClearAllCommand = new Command(OnDataClearAllClicked);
             ChangeModeCommand = new Command(OnModeButtonClicked);
         }
+        public SolidColorPaint LegendTextPaint { get; set; } =
+        new SolidColorPaint
+        {
+            Color = new SKColor(50, 50, 50),
+            SKTypeface = SKFontManager.Default.MatchCharacter('汉')
+        };
+
 
         private int _comSelectedIndex;
         public int ComSelectedIndex
@@ -251,13 +276,24 @@ namespace Pressure_t.Model
             }
         }
 
-        private DataStorage _dataStorageListSelectedIndex;
-        public DataStorage DataStorageListSelectedIndex
+        //private DataStorage _dataStorageListSelectedIndex;
+        //public DataStorage DataStorageListSelectedIndex
+        //{
+        //    get => _dataStorageListSelectedIndex;
+        //    set
+        //    {
+        //        _dataStorageListSelectedIndex = value;
+        //        // 触发属性更改通知
+        //    }
+        //}
+
+        private DataExcelPath _dataExcelPathListSelectedIndex;
+        public DataExcelPath DataExcelPathListSelectedIndex
         {
-            get => _dataStorageListSelectedIndex;
+            get => _dataExcelPathListSelectedIndex;
             set
             {
-                _dataStorageListSelectedIndex = value;
+                _dataExcelPathListSelectedIndex = value;
                 // 触发属性更改通知
             }
         }
@@ -826,7 +862,7 @@ namespace Pressure_t.Model
         }
 
         int numCount = 0;
-        private void UpdateRTAValue(string strValue)
+        private async void UpdateRTAValue(string strValue)
         {
             if (double.TryParse(strValue, out double numericValue))
             {
@@ -850,6 +886,12 @@ namespace Pressure_t.Model
                 //        values.Add(PressureNumeric);
                 //    }
                 //}
+
+
+                // 保存到excel表格当中
+                SaveSingleData();
+
+                // 添加图表数据
                 ObservablePoint _values = new ObservablePoint(++numCount, PressureNumeric);
                 if (Series[0] is LineSeries<ObservablePoint> lineSeries)
                 {
@@ -882,20 +924,93 @@ namespace Pressure_t.Model
         }
         private void SerialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
-            // 处理接收到的数据
-            SerialPort sp = (SerialPort)sender;
-            string indata = sp.ReadExisting();
-            _serialBuffer.Append(indata); // 将接收到的数据追加到缓冲区
-            // 如果数据包含了结束符（例如换行符），则处理数据
-            if (_serialBuffer.ToString().IndexOf('\n') >= 0)
+            if (IsDataSave)
             {
-                // 在这里处理完整的数据包
-                Debug.WriteLine("这里是调试信息");
-                string dataToProcess = _serialBuffer.ToString();
-                _serialBuffer.Clear(); // 清除缓冲区，准备下一次数据接收
+                // 处理接收到的数据
+                SerialPort sp = (SerialPort)sender;
+                string indata = sp.ReadExisting();
+                _serialBuffer.Append(indata); // 将接收到的数据追加到缓冲区
+                // 如果数据包含了结束符（例如换行符），则处理数据
+                if (_serialBuffer.ToString().IndexOf('\n') >= 0)
+                {
+                    // 在这里处理完整的数据包
+                    //Debug.WriteLine("这里是调试信息");
+                    string dataToProcess = _serialBuffer.ToString();
+                    _serialBuffer.Clear(); // 清除缓冲区，准备下一次数据接收
                 
-                // 将数据处理逻辑移动到另一个方法中，以便可以异步执行
-                ProcessData(dataToProcess);
+                    // 将数据处理逻辑移动到另一个方法中，以便可以异步执行
+                    ProcessData(dataToProcess);
+                }
+            }
+
+        }
+
+        private void SaveSingleData()
+        {
+            // 获取当前日期并将其转换为字符串格式，例如 "2024-03-25"
+            string date = DateTime.Now.ToString("yyyy-MM-dd");
+            string fileName = $"PressureSingleData-{date}.xlsx";  // 创建基于日期的文件名
+
+            // 指定文件路径
+            string documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            string filePath = Path.Combine(documentsPath, fileName);
+
+            // 检查文件是否存在，如果不存在则创建一个新的工作簿
+            if (!File.Exists(filePath))
+            {
+                using (var workbook = new XLWorkbook())
+                {
+                    workbook.AddWorksheet("Pressure Sheet");
+                    workbook.SaveAs(filePath);
+                }
+            }
+
+            // 检查DataItems中是否包含该文件名
+            bool fileExists = DataItems.Any(item => item.ExcelPath.Equals(filePath));
+
+            if (false == fileExists)
+            {
+                DataItems.Add(new DataExcelPath { ExcelPath = filePath });
+                OnPropertyChanged(nameof(DataItems));
+            }
+
+            // 打开现有的工作簿并添加数据
+            using (var workbook = new XLWorkbook(filePath))
+            {
+                var worksheet = workbook.Worksheet("Pressure Sheet");
+
+                // 查找下一个空白行
+                var lastRowCell = worksheet.LastRowUsed();
+                int lastRowUsed = lastRowCell != null ? lastRowCell.RowNumber() : 0;
+                int nextRow = lastRowUsed + 1;
+
+                if (lastRowUsed == 0)
+                {
+                    worksheet.Cell("A" + nextRow).Value = "日期与时间";
+                    worksheet.Cell("B" + nextRow).Value = "ADC数值";
+                    worksheet.Cell("C" + nextRow).Value = "电压/V";
+                    worksheet.Cell("D" + nextRow).Value = "压力/N";
+                }
+                else
+                {
+                    // 要添加的数据
+                    worksheet.Cell("A" + nextRow).Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"); ;
+                    worksheet.Cell("B" + nextRow).Value = RTANumeric;
+                    worksheet.Cell("C" + nextRow).Value = RTVNumeric;
+                    worksheet.Cell("D" + nextRow).Value = PressureNumeric;
+                }
+
+                // 保存工作簿
+                try
+                {
+                    workbook.Save();
+                }
+                catch (Exception ex)
+                {
+                    // 如果有异常发生，保存操作失败
+                    Console.WriteLine("Failed to save the workbook: " + ex.Message);
+                }
+
             }
         }
 
@@ -918,6 +1033,8 @@ namespace Pressure_t.Model
                 if (replay)
                 {
                     IsDataSave = true;
+
+
                 }
             }
             else
@@ -934,10 +1051,10 @@ namespace Pressure_t.Model
 
         private async void OnDataClearClicked()
         {
-            if (DataStorageListSelectedIndex != null && DataItems.Contains(DataStorageListSelectedIndex))
+            if (DataExcelPathListSelectedIndex != null && DataItems.Contains(DataExcelPathListSelectedIndex))
             {
                 // 找到要删除的数据点在折线图中的索引
-                var itemToRemove = DataStorageListSelectedIndex as DataStorage;
+                var itemToRemove = DataExcelPathListSelectedIndex as DataExcelPath;
                 int indexToRemove = DataItems.IndexOf(itemToRemove);
 
                 // 删除列表中的数据点
@@ -957,7 +1074,7 @@ namespace Pressure_t.Model
                 }
 
                 // 清除选中状态
-                DataStorageListSelectedIndex = null;
+                DataExcelPathListSelectedIndex = null;
 
                 // 通知视图更新
                 OnPropertyChanged(nameof(Series));
@@ -975,8 +1092,8 @@ namespace Pressure_t.Model
 
             if (reply)
             {
-                DataItems.Clear();
-                DataStorageListSelectedIndex = null;
+                //DataItems.Clear();
+                DataExcelPathListSelectedIndex = null;
                 PressureNumeric = 0;
                 RTANumeric = 0;
                 RTVNumeric = 0;
@@ -1053,6 +1170,7 @@ namespace Pressure_t.Model
                 {
                     new LineSeries<ObservablePoint>
                     {
+                        Name = "压力/N",
                         Values = new ObservableCollection<ObservablePoint>(),
                         GeometryStroke = null,
                         GeometryFill = null,
@@ -1060,6 +1178,7 @@ namespace Pressure_t.Model
                     },
                     new LineSeries<double>
                     {
+                        Name = "电压/V",
                         Values = new ObservableCollection<double>(),
                         Fill = new SolidColorPaint(SKColors.CornflowerBlue)
                     }
@@ -1069,10 +1188,17 @@ namespace Pressure_t.Model
                 {
                     new LineSeries<ObservablePoint>
                     {
+                        Name = "压力/N",
                         Values = new ObservableCollection<ObservablePoint>(),
                         GeometryStroke = null,
                         GeometryFill = null,
                         DataPadding = new(0, 1)
+                    },
+                    new LineSeries<double>
+                    {
+                        Name = "电压/V",
+                        Values = new ObservableCollection<double>(),
+                        Fill = new SolidColorPaint(SKColors.CornflowerBlue)
                     }
                 };
 
@@ -1173,6 +1299,9 @@ namespace Pressure_t.Model
                     break;
             }
         }
+
+
+       
 
     }
 
