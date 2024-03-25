@@ -168,12 +168,13 @@ namespace Pressure_t.Model
                         DataPadding = new(0, 1)
                     },
 
-                    new LineSeries<double>
+                    new LineSeries<ObservablePoint>
                     {
                         Name = "电压/V",
-                        Values = new ObservableCollection<double>(),
-                        Fill = null,
-                        //Fill = new SolidColorPaint(SKColors.CornflowerBlue)
+                        Values = new ObservableCollection<ObservablePoint>(),
+                        GeometryStroke = null,
+                        GeometryFill = null,
+                        DataPadding = new(0, 1)
                     }
                 };
 
@@ -187,11 +188,13 @@ namespace Pressure_t.Model
                         GeometryFill = null,
                         DataPadding = new(0, 1)
                     },
-                    new LineSeries<double>
+                    new LineSeries<ObservablePoint>
                     {
                         Name = "电压/V",
-                        Values = new ObservableCollection<double>(),
-                        Fill = new SolidColorPaint(SKColors.CornflowerBlue)
+                        Values = new ObservableCollection<ObservablePoint>(),
+                        GeometryStroke = null,
+                        GeometryFill = null,
+                        DataPadding = new(0, 1)
                     }
                 };
 
@@ -842,27 +845,30 @@ namespace Pressure_t.Model
                 //}
                 // 通知视图更新
                 // OnPropertyChanged(nameof(Series));
-
-                string[] pressureValues = data.Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries);
-
-                if (pressureValues.Length == 18)
+                MainThread.BeginInvokeOnMainThread(() =>
                 {
-                    for (int i = 0; i < 18; i++)
+                    string[] pressureValues = data.Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries);
+
+                    if (pressureValues.Length == 18)
                     {
-                        // 更新压力值，并通知UI
-                        // UpdatePressurePoint(i, double.Parse(pressureValues[i]));s
-                        PressurePoints[i].MartixValueItem = double.Parse(pressureValues[i]);
-                        Debug.WriteLine(PressurePoints[i].MartixValueItem);
-                        OnPropertyChanged(nameof(PressurePoints));
+                        for (int i = 0; i < 18; i++)
+                        {
+                            // 更新压力值，并通知UI
+                            // UpdatePressurePoint(i, double.Parse(pressureValues[i]));
+                            PressurePoints[i].MartixValueItem = double.Parse(pressureValues[i]);
+                            Debug.WriteLine(PressurePoints[i].MartixValueItem);
+                            OnPropertyChanged(nameof(PressurePoints));
+                        }
+                        SaveMartixData();
                     }
-                    
-                }
+                });
+
             }
 
         }
 
         int numCount = 0;
-        private async void UpdateRTAValue(string strValue)
+        private void UpdateRTAValue(string strValue)
         {
             if (double.TryParse(strValue, out double numericValue))
             {
@@ -893,6 +899,8 @@ namespace Pressure_t.Model
 
                 // 添加图表数据
                 ObservablePoint _values = new ObservablePoint(++numCount, PressureNumeric);
+                ObservablePoint _RTAvalues = new ObservablePoint(numCount, RTVNumeric);
+
                 if (Series[0] is LineSeries<ObservablePoint> lineSeries)
                 {
                     if (lineSeries.Values is ObservableCollection<ObservablePoint> values)
@@ -901,16 +909,15 @@ namespace Pressure_t.Model
                     }
                 }
                 
-                if (Series[1] is LineSeries<double> lineDoubleSeries)
+                if (Series[1] is LineSeries<ObservablePoint> lineDoubleSeries)
                 {
-                    if (lineDoubleSeries.Values is ObservableCollection<double> values)
+                    if (lineDoubleSeries.Values is ObservableCollection<ObservablePoint> values)
                     {
-                        values.Add(RTVNumeric);
+                        values.Add(_RTAvalues);
                     }
                 }
 
-
-                if (ScrollbarSeries.FirstOrDefault() is LineSeries<ObservablePoint> scrollbarSeries)
+                if (ScrollbarSeries[0] is LineSeries<ObservablePoint> scrollbarSeries)
                 {
                     if (scrollbarSeries.Values is ObservableCollection<ObservablePoint> values)
                     {
@@ -918,6 +925,13 @@ namespace Pressure_t.Model
                     }
                 }
 
+                if (ScrollbarSeries[1] is LineSeries<ObservablePoint> scrollbarDoubleSeries)
+                {
+                    if (scrollbarDoubleSeries.Values is ObservableCollection<ObservablePoint> values)
+                    {
+                        values.Add(_RTAvalues);
+                    }
+                }
 
             }
 
@@ -929,12 +943,13 @@ namespace Pressure_t.Model
                 // 处理接收到的数据
                 SerialPort sp = (SerialPort)sender;
                 string indata = sp.ReadExisting();
+                Debug.WriteLine(indata);
                 _serialBuffer.Append(indata); // 将接收到的数据追加到缓冲区
                 // 如果数据包含了结束符（例如换行符），则处理数据
                 if (_serialBuffer.ToString().IndexOf('\n') >= 0)
                 {
                     // 在这里处理完整的数据包
-                    //Debug.WriteLine("这里是调试信息");
+                    Debug.WriteLine("这里是调试信息");
                     string dataToProcess = _serialBuffer.ToString();
                     _serialBuffer.Clear(); // 清除缓冲区，准备下一次数据接收
                 
@@ -1014,6 +1029,162 @@ namespace Pressure_t.Model
             }
         }
 
+        private async void SaveMartixData()
+        {
+            // 获取当前日期并将其转换为字符串格式，例如 "2024-03-25"
+            string date = DateTime.Now.ToString("yyyy-MM-dd");
+            string fileName = $"PressureMartixData-{date}.xlsx";  // 创建基于日期的文件名
+
+            // 指定文件路径
+            string documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            string filePath = Path.Combine(documentsPath, fileName);
+
+            // 检查文件是否存在，如果不存在则创建一个新的工作簿
+            if (!File.Exists(filePath))
+            {
+                using (var workbook = new XLWorkbook())
+                {
+                    workbook.AddWorksheet("Pressure Sheet");
+                    workbook.SaveAs(filePath);
+                }
+            }
+
+            // 检查DataItems中是否包含该文件名
+            bool fileExists = DataItems.Any(item => item.ExcelPath.Equals(filePath));
+
+            if (false == fileExists)
+            {
+                DataItems.Add(new DataExcelPath { ExcelPath = filePath });
+                OnPropertyChanged(nameof(DataItems));
+            }
+
+            // 打开现有的工作簿并添加数据
+            try
+            {
+                using (var workbook = new XLWorkbook(filePath))
+                {
+                    var worksheet = workbook.Worksheet("Pressure Sheet");
+
+                    // 查找下一个空白行
+                    var lastRowCell = worksheet.LastRowUsed();
+                    int lastRowUsed = lastRowCell != null ? lastRowCell.RowNumber() : 0;
+                    int nextRow = lastRowUsed + 1;
+
+                    if (lastRowUsed == 0)
+                    {
+                        worksheet.Cell("A" + nextRow).Value = "日期与时间";
+                        // 从"B"列开始填充L1到L18的质量标题
+                        worksheet.Cell("B" + nextRow).Value = "L1(g)";
+                        worksheet.Cell("C" + nextRow).Value = "L2(g)";
+                        worksheet.Cell("D" + nextRow).Value = "L3(g)";
+                        worksheet.Cell("E" + nextRow).Value = "L4(g)";
+                        worksheet.Cell("F" + nextRow).Value = "L5(g)";
+                        worksheet.Cell("G" + nextRow).Value = "L6(g)";
+                        worksheet.Cell("H" + nextRow).Value = "L7(g)";
+                        worksheet.Cell("I" + nextRow).Value = "L8(g)";
+                        worksheet.Cell("J" + nextRow).Value = "L9(g)";
+                        worksheet.Cell("K" + nextRow).Value = "L10(g)";
+                        worksheet.Cell("L" + nextRow).Value = "L11(g)";
+                        worksheet.Cell("M" + nextRow).Value = "L12(g)";
+                        worksheet.Cell("N" + nextRow).Value = "L13(g)";
+                        worksheet.Cell("O" + nextRow).Value = "L14(g)";
+                        worksheet.Cell("P" + nextRow).Value = "L15(g)";
+                        worksheet.Cell("Q" + nextRow).Value = "L16(g)";
+                        worksheet.Cell("R" + nextRow).Value = "L17(g)";
+                        worksheet.Cell("S" + nextRow).Value = "L18(g)";
+
+                        // 继续添加R1到R18的质量标题，从"T"列开始
+                        worksheet.Cell("T" + nextRow).Value = "R1(g)";
+                        worksheet.Cell("U" + nextRow).Value = "R2(g)";
+                        worksheet.Cell("V" + nextRow).Value = "R3(g)";
+                        worksheet.Cell("W" + nextRow).Value = "R4(g)";
+                        worksheet.Cell("X" + nextRow).Value = "R5(g)";
+                        worksheet.Cell("Y" + nextRow).Value = "R6(g)";
+                        worksheet.Cell("Z" + nextRow).Value = "R7(g)";
+                        worksheet.Cell("AA" + nextRow).Value = "R8(g)";
+                        worksheet.Cell("AB" + nextRow).Value = "R9(g)";
+                        worksheet.Cell("AC" + nextRow).Value = "R10(g)";
+                        worksheet.Cell("AD" + nextRow).Value = "R11(g)";
+                        worksheet.Cell("AE" + nextRow).Value = "R12(g)";
+                        worksheet.Cell("AF" + nextRow).Value = "R13(g)";
+                        worksheet.Cell("AG" + nextRow).Value = "R14(g)";
+                        worksheet.Cell("AH" + nextRow).Value = "R15(g)";
+                        worksheet.Cell("AI" + nextRow).Value = "R16(g)";
+                        worksheet.Cell("AJ" + nextRow).Value = "R17(g)";
+                        worksheet.Cell("AK" + nextRow).Value = "R18(g)";
+                    }
+                    else
+                    {
+                        // 要添加的数据
+
+                        if (IsLeftFoot)
+                        {
+                            worksheet.Cell("A" + nextRow).Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                            worksheet.Cell("B" + nextRow).Value = PressurePoints[0].MartixValueItem;
+                            worksheet.Cell("C" + nextRow).Value = PressurePoints[1].MartixValueItem;
+                            worksheet.Cell("D" + nextRow).Value = PressurePoints[2].MartixValueItem;
+                            worksheet.Cell("E" + nextRow).Value = PressurePoints[3].MartixValueItem;
+                            worksheet.Cell("F" + nextRow).Value = PressurePoints[4].MartixValueItem;
+                            worksheet.Cell("G" + nextRow).Value = PressurePoints[5].MartixValueItem;
+                            worksheet.Cell("H" + nextRow).Value = PressurePoints[6].MartixValueItem;
+                            worksheet.Cell("I" + nextRow).Value = PressurePoints[7].MartixValueItem;
+                            worksheet.Cell("J" + nextRow).Value = PressurePoints[8].MartixValueItem;
+                            worksheet.Cell("K" + nextRow).Value = PressurePoints[9].MartixValueItem;
+                            worksheet.Cell("L" + nextRow).Value = PressurePoints[10].MartixValueItem;
+                            worksheet.Cell("M" + nextRow).Value = PressurePoints[11].MartixValueItem;
+                            worksheet.Cell("N" + nextRow).Value = PressurePoints[12].MartixValueItem;
+                            worksheet.Cell("O" + nextRow).Value = PressurePoints[13].MartixValueItem;
+                            worksheet.Cell("P" + nextRow).Value = PressurePoints[14].MartixValueItem;
+                            worksheet.Cell("Q" + nextRow).Value = PressurePoints[15].MartixValueItem;
+                            worksheet.Cell("R" + nextRow).Value = PressurePoints[16].MartixValueItem;
+                            worksheet.Cell("S" + nextRow).Value = PressurePoints[17].MartixValueItem;
+                        }
+                        if (IsRightFoot)
+                        {
+                            worksheet.Cell("A" + nextRow).Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                            worksheet.Cell("T" + nextRow).Value = PressurePoints[0].MartixValueItem;
+                            worksheet.Cell("U" + nextRow).Value = PressurePoints[1].MartixValueItem;
+                            worksheet.Cell("V" + nextRow).Value = PressurePoints[2].MartixValueItem;
+                            worksheet.Cell("W" + nextRow).Value = PressurePoints[3].MartixValueItem;
+                            worksheet.Cell("X" + nextRow).Value = PressurePoints[4].MartixValueItem;
+                            worksheet.Cell("Y" + nextRow).Value = PressurePoints[5].MartixValueItem;
+                            worksheet.Cell("Z" + nextRow).Value = PressurePoints[6].MartixValueItem;
+                            worksheet.Cell("AA" + nextRow).Value = PressurePoints[7].MartixValueItem;
+                            worksheet.Cell("AB" + nextRow).Value = PressurePoints[8].MartixValueItem;
+                            worksheet.Cell("AC" + nextRow).Value = PressurePoints[9].MartixValueItem;
+                            worksheet.Cell("AD" + nextRow).Value = PressurePoints[10].MartixValueItem;
+                            worksheet.Cell("AE" + nextRow).Value = PressurePoints[11].MartixValueItem;
+                            worksheet.Cell("AF" + nextRow).Value = PressurePoints[12].MartixValueItem;
+                            worksheet.Cell("AG" + nextRow).Value = PressurePoints[13].MartixValueItem;
+                            worksheet.Cell("AH" + nextRow).Value = PressurePoints[14].MartixValueItem;
+                            worksheet.Cell("AI" + nextRow).Value = PressurePoints[15].MartixValueItem;
+                            worksheet.Cell("AJ" + nextRow).Value = PressurePoints[16].MartixValueItem;
+                            worksheet.Cell("AK" + nextRow).Value = PressurePoints[17].MartixValueItem;
+                        }
+
+                    }
+
+                    // 保存工作簿
+                    try
+                    {
+                        workbook.Save();
+
+                    }
+                    catch (Exception ex)
+                    {
+                        // 如果有异常发生，保存操作失败        
+                        Console.WriteLine("Failed to save the workbook: " + ex.Message);
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                await _dialogService.ShowAlertAsync("DataSave", "请先关闭已打开的相关文件", "确认", "取消");
+                throw;
+            }
+
+        }
+
         private async void OnDataSaveClicked()
         {
             //DataItems.Add(new DataStorage { Voltage = RTVNumeric, ValueOfADC = RTANumeric, Pressure = PressureNumeric });
@@ -1033,8 +1204,6 @@ namespace Pressure_t.Model
                 if (replay)
                 {
                     IsDataSave = true;
-
-
                 }
             }
             else
@@ -1105,17 +1274,9 @@ namespace Pressure_t.Model
                         values.Clear();
                     }
                 }
-                if (Series[1] is LineSeries<double> lineDoubleSeries)
+                if (Series[1] is LineSeries<ObservablePoint> lineDoubleSeries)
                 {
-                    if (lineDoubleSeries.Values is ObservableCollection<double> values)
-                    {
-                        values.Clear();
-                    }
-                }
-
-                if (ScrollbarSeries.FirstOrDefault() is LineSeries<ObservablePoint> scrollbarSeries)
-                {
-                    if (scrollbarSeries.Values is ObservableCollection<ObservablePoint> values)
+                    if (lineDoubleSeries.Values is ObservableCollection<ObservablePoint> values)
                     {
                         values.Clear();
                     }
@@ -1128,7 +1289,21 @@ namespace Pressure_t.Model
                         values.Clear();
                     }
                 }
+                if (ScrollbarSeries[0] is LineSeries<ObservablePoint> scrollbarSeries)
+                {
+                    if (scrollbarSeries.Values is ObservableCollection<ObservablePoint> values)
+                    {
+                        values.Clear();
+                    }
+                }
 
+                if (ScrollbarSeries[1] is LineSeries<ObservablePoint> scrollbarDoubleSeries)
+                {
+                    if (scrollbarDoubleSeries.Values is ObservableCollection<ObservablePoint> values)
+                    {
+                        values.Clear();
+                    }
+                }
             }
 
             // 通知视图更新
@@ -1176,11 +1351,13 @@ namespace Pressure_t.Model
                         GeometryFill = null,
                         DataPadding = new(0, 1)
                     },
-                    new LineSeries<double>
+                    new LineSeries<ObservablePoint>
                     {
                         Name = "电压/V",
-                        Values = new ObservableCollection<double>(),
-                        Fill = new SolidColorPaint(SKColors.CornflowerBlue)
+                        Values = new ObservableCollection<ObservablePoint>(),
+                        GeometryStroke = null,
+                        GeometryFill = null,
+                        DataPadding = new(0, 1)
                     }
                 };
 
@@ -1194,11 +1371,13 @@ namespace Pressure_t.Model
                         GeometryFill = null,
                         DataPadding = new(0, 1)
                     },
-                    new LineSeries<double>
+                    new LineSeries<ObservablePoint>
                     {
                         Name = "电压/V",
-                        Values = new ObservableCollection<double>(),
-                        Fill = new SolidColorPaint(SKColors.CornflowerBlue)
+                        Values = new ObservableCollection<ObservablePoint>(),
+                        GeometryStroke = null,
+                        GeometryFill = null,
+                        DataPadding = new(0, 1)
                     }
                 };
 

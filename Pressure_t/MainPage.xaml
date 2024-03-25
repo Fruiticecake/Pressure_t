@@ -89,7 +89,8 @@
                         XAxes="{Binding ScrollableAxes}"
                         ZoomMode="X"
                         DrawMargin="{Binding Margin}"
-                        UpdateStartedCommand="{Binding ChartUpdatedCommand}">
+                        UpdateStartedCommand="{Binding ChartUpdatedCommand}"
+                        LegendTextPaint="{Binding LegendTextPaint}">
                     </lvc:CartesianChart>
                     
                     <lvc:CartesianChart
@@ -162,59 +163,59 @@
                                     <ColumnDefinition Width="40"/>
                                 </Grid.ColumnDefinitions>
 
-                                <Frame Grid.Row="0" Grid.Column="0" Padding="0" CornerRadius="5" WidthRequest="30" Margin="0, 0, -60, 0" BorderColor="{Binding PressurePoints[0].PressureColor}">
-                                    <Label IsVisible="{Binding IsLeftFoot}" BackgroundColor="{Binding PressurePoints[0].PressureColor}" Text="{Binding PressurePoints[0].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
-                                </Frame>
-                                <Frame Grid.Row="0" Grid.Column="1" Padding="0" WidthRequest="30" HeightRequest="70" Margin="0, 0, -40, 20" CornerRadius="5" BorderColor="{Binding PressurePoints[1].PressureColor}" >
+                                <Frame Grid.Row="0" Grid.Column="0" Padding="0" CornerRadius="5" WidthRequest="30" Margin="0, 0, -60, 0" BorderColor="{Binding PressurePoints[1].PressureColor}">
                                     <Label IsVisible="{Binding IsLeftFoot}" BackgroundColor="{Binding PressurePoints[1].PressureColor}" Text="{Binding PressurePoints[1].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
                                 </Frame>
-                                <Frame Grid.Row="0" Grid.Column="2" Padding="0" WidthRequest="30" HeightRequest="70" Margin="0, 0, -20, 20" CornerRadius="5" BorderColor="{Binding PressurePoints[2].PressureColor}">
-                                    <Label IsVisible="{Binding IsLeftFoot}" BackgroundColor="{Binding PressurePoints[2].PressureColor}" Text="{Binding PressurePoints[2].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
-                                </Frame>
-                                <Frame Grid.Row="0" Grid.Column="3" Padding="0" WidthRequest="50"  Margin="20, 0, 0, 0" CornerRadius="5" BorderColor="{Binding PressurePoints[3].PressureColor}">
-                                    <Label IsVisible="{Binding IsLeftFoot}" BackgroundColor="{Binding PressurePoints[3].PressureColor}" Text="{Binding PressurePoints[3].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
-                                </Frame>
-                                <Frame Grid.Row="1" Grid.Column="1" Padding="0" CornerRadius="5"  BorderColor="{Binding PressurePoints[4].PressureColor}">
-                                    <Label IsVisible="{Binding IsLeftFoot}" BackgroundColor="{Binding PressurePoints[4].PressureColor}" Text="{Binding PressurePoints[4].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
-                                </Frame>
-                                <Frame Grid.Row="1" Grid.Column="2" Padding="0" CornerRadius="5" BorderColor="{Binding PressurePoints[5].PressureColor}">
-                                    <Label IsVisible="{Binding IsLeftFoot}" BackgroundColor="{Binding PressurePoints[5].PressureColor}"  Text="{Binding PressurePoints[5].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
-                                </Frame>
-                                <Frame Grid.Row="1" Grid.Column="3" Padding="0" CornerRadius="5" BorderColor="{Binding PressurePoints[6].PressureColor}">
-                                    <Label IsVisible="{Binding IsLeftFoot}" BackgroundColor="{Binding PressurePoints[6].PressureColor}" Text="{Binding PressurePoints[6].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
-                                </Frame>
-                                <Frame Grid.Row="1" Grid.Column="4" Padding="0" CornerRadius="5" BorderColor="{Binding PressurePoints[7].PressureColor}">
+                                <Frame Grid.Row="0" Grid.Column="1" Padding="0" WidthRequest="30" HeightRequest="70" Margin="0, 0, -40, 20" CornerRadius="5" BorderColor="{Binding PressurePoints[7].PressureColor}" >
                                     <Label IsVisible="{Binding IsLeftFoot}" BackgroundColor="{Binding PressurePoints[7].PressureColor}" Text="{Binding PressurePoints[7].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
                                 </Frame>
-                                <Frame Grid.Row="2" Grid.Column="2" Padding="0" WidthRequest="70" Margin="0, 0, 30, 0" CornerRadius="5" BorderColor="{Binding PressurePoints[8].PressureColor}">
-                                    <Label IsVisible="{Binding IsLeftFoot}" BackgroundColor="{Binding PressurePoints[8].PressureColor}" Text="{Binding PressurePoints[8].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
-                                </Frame>
-                                <Frame Grid.Row="2" Grid.Column="3" Padding="0" CornerRadius="5" BorderColor="{Binding PressurePoints[9].PressureColor}">
-                                    <Label IsVisible="{Binding IsLeftFoot}" BackgroundColor="{Binding PressurePoints[9].PressureColor}" Text="{Binding PressurePoints[9].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
-                                </Frame>
-                                <Frame Grid.Row="2" Grid.Column="4" Padding="0" WidthRequest="50" Margin="10, 0, 0, 0" CornerRadius="5" BorderColor="{Binding PressurePoints[10].PressureColor}">
-                                    <Label IsVisible="{Binding IsLeftFoot}" BackgroundColor="{Binding PressurePoints[10].PressureColor}" Text="{Binding PressurePoints[10].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
-                                </Frame>
-                                <Frame Grid.Row="3" Grid.Column="2" Padding="0" WidthRequest="50" Margin="0, 0, 10, 0" CornerRadius="5" BorderColor="{Binding PressurePoints[11].PressureColor}">
-                                    <Label IsVisible="{Binding IsLeftFoot}" BackgroundColor="{Binding PressurePoints[11].PressureColor}" Text="{Binding PressurePoints[11].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
-                                </Frame>
-                                <Frame Grid.Row="3" Grid.Column="3" Padding="0" CornerRadius="5" BorderColor="{Binding PressurePoints[12].PressureColor}">
-                                    <Label IsVisible="{Binding IsLeftFoot}" BackgroundColor="{Binding PressurePoints[12].PressureColor}" Text="{Binding PressurePoints[12].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
-                                </Frame>
-                                <Frame Grid.Row="3" Grid.Column="4" Padding="0" CornerRadius="5" BorderColor="{Binding PressurePoints[13].PressureColor}">
+                                <Frame Grid.Row="0" Grid.Column="2" Padding="0" WidthRequest="30" HeightRequest="70" Margin="0, 0, -20, 20" CornerRadius="5" BorderColor="{Binding PressurePoints[13].PressureColor}">
                                     <Label IsVisible="{Binding IsLeftFoot}" BackgroundColor="{Binding PressurePoints[13].PressureColor}" Text="{Binding PressurePoints[13].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
                                 </Frame>
-                                <Frame Grid.Row="4" Grid.Column="2" Padding="0" HeightRequest="60" WidthRequest="55" Margin="0, 10, -35, 0" CornerRadius="5" BorderColor="{Binding PressurePoints[14].PressureColor}">
-                                    <Label IsVisible="{Binding IsLeftFoot}" BackgroundColor="{Binding PressurePoints[14].PressureColor}" Text="{Binding PressurePoints[14].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                                <Frame Grid.Row="0" Grid.Column="3" Padding="0" WidthRequest="50"  Margin="20, 0, 0, 0" CornerRadius="5" BorderColor="{Binding PressurePoints[17].PressureColor}">
+                                    <Label IsVisible="{Binding IsLeftFoot}" BackgroundColor="{Binding PressurePoints[17].PressureColor}" Text="{Binding PressurePoints[17].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
                                 </Frame>
-                                <Frame Grid.Row="4" Grid.Column="4" Padding="0" HeightRequest="60" WidthRequest="55" Margin="-35, 10, 0, 0"  CornerRadius="5" BorderColor="{Binding PressurePoints[15].PressureColor}">
-                                    <Label IsVisible="{Binding IsLeftFoot}" BackgroundColor="{Binding PressurePoints[15].PressureColor}" Text="{Binding PressurePoints[15].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                                <Frame Grid.Row="1" Grid.Column="1" Padding="0" CornerRadius="5"  BorderColor="{Binding PressurePoints[0].PressureColor}">
+                                    <Label IsVisible="{Binding IsLeftFoot}" BackgroundColor="{Binding PressurePoints[0].PressureColor}" Text="{Binding PressurePoints[0].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
                                 </Frame>
-                                <Frame Grid.Row="5" Grid.Column="2" Padding="0" HeightRequest="70" WidthRequest="55" Margin="0, 40, -35, 0" CornerRadius="5" BorderColor="{Binding PressurePoints[16].PressureColor}">
+                                <Frame Grid.Row="1" Grid.Column="2" Padding="0" CornerRadius="5" BorderColor="{Binding PressurePoints[6].PressureColor}">
+                                    <Label IsVisible="{Binding IsLeftFoot}" BackgroundColor="{Binding PressurePoints[6].PressureColor}"  Text="{Binding PressurePoints[6].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                                </Frame>
+                                <Frame Grid.Row="1" Grid.Column="3" Padding="0" CornerRadius="5" BorderColor="{Binding PressurePoints[12].PressureColor}">
+                                    <Label IsVisible="{Binding IsLeftFoot}" BackgroundColor="{Binding PressurePoints[12].PressureColor}" Text="{Binding PressurePoints[12].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                                </Frame>
+                                <Frame Grid.Row="1" Grid.Column="4" Padding="0" CornerRadius="5" BorderColor="{Binding PressurePoints[16].PressureColor}">
                                     <Label IsVisible="{Binding IsLeftFoot}" BackgroundColor="{Binding PressurePoints[16].PressureColor}" Text="{Binding PressurePoints[16].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
                                 </Frame>
-                                <Frame Grid.Row="5" Grid.Column="4" Padding="0" HeightRequest="70" WidthRequest="55" Margin="-35, 40, 0, 0" CornerRadius="5" BorderColor="{Binding PressurePoints[17].PressureColor}">
-                                    <Label IsVisible="{Binding IsLeftFoot}" BackgroundColor="{Binding PressurePoints[17].PressureColor}" Text="{Binding PressurePoints[17].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                                <Frame Grid.Row="2" Grid.Column="2" Padding="0" WidthRequest="70" Margin="0, 0, 30, 0" CornerRadius="5" BorderColor="{Binding PressurePoints[5].PressureColor}">
+                                    <Label IsVisible="{Binding IsLeftFoot}" BackgroundColor="{Binding PressurePoints[5].PressureColor}" Text="{Binding PressurePoints[5].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                                </Frame>
+                                <Frame Grid.Row="2" Grid.Column="3" Padding="0" CornerRadius="5" BorderColor="{Binding PressurePoints[11].PressureColor}">
+                                    <Label IsVisible="{Binding IsLeftFoot}" BackgroundColor="{Binding PressurePoints[11].PressureColor}" Text="{Binding PressurePoints[11].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                                </Frame>
+                                <Frame Grid.Row="2" Grid.Column="4" Padding="0" WidthRequest="50" Margin="10, 0, 0, 0" CornerRadius="5" BorderColor="{Binding PressurePoints[15].PressureColor}">
+                                    <Label IsVisible="{Binding IsLeftFoot}" BackgroundColor="{Binding PressurePoints[15].PressureColor}" Text="{Binding PressurePoints[15].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                                </Frame>
+                                <Frame Grid.Row="3" Grid.Column="2" Padding="0" WidthRequest="50" Margin="0, 0, 10, 0" CornerRadius="5" BorderColor="{Binding PressurePoints[4].PressureColor}">
+                                    <Label IsVisible="{Binding IsLeftFoot}" BackgroundColor="{Binding PressurePoints[4].PressureColor}" Text="{Binding PressurePoints[4].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                                </Frame>
+                                <Frame Grid.Row="3" Grid.Column="3" Padding="0" CornerRadius="5" BorderColor="{Binding PressurePoints[10].PressureColor}">
+                                    <Label IsVisible="{Binding IsLeftFoot}" BackgroundColor="{Binding PressurePoints[10].PressureColor}" Text="{Binding PressurePoints[10].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                                </Frame>
+                                <Frame Grid.Row="3" Grid.Column="4" Padding="0" CornerRadius="5" BorderColor="{Binding PressurePoints[14].PressureColor}">
+                                    <Label IsVisible="{Binding IsLeftFoot}" BackgroundColor="{Binding PressurePoints[14].PressureColor}" Text="{Binding PressurePoints[14].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                                </Frame>
+                                <Frame Grid.Row="4" Grid.Column="2" Padding="0" HeightRequest="60" WidthRequest="55" Margin="0, 10, -35, 0" CornerRadius="5" BorderColor="{Binding PressurePoints[3].PressureColor}">
+                                    <Label IsVisible="{Binding IsLeftFoot}" BackgroundColor="{Binding PressurePoints[3].PressureColor}" Text="{Binding PressurePoints[3].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                                </Frame>
+                                <Frame Grid.Row="4" Grid.Column="4" Padding="0" HeightRequest="60" WidthRequest="55" Margin="-35, 10, 0, 0"  CornerRadius="5" BorderColor="{Binding PressurePoints[9].PressureColor}">
+                                    <Label IsVisible="{Binding IsLeftFoot}" BackgroundColor="{Binding PressurePoints[9].PressureColor}" Text="{Binding PressurePoints[9].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                                </Frame>
+                                <Frame Grid.Row="5" Grid.Column="2" Padding="0" HeightRequest="70" WidthRequest="55" Margin="0, 40, -35, 0" CornerRadius="5" BorderColor="{Binding PressurePoints[2].PressureColor}">
+                                    <Label IsVisible="{Binding IsLeftFoot}" BackgroundColor="{Binding PressurePoints[2].PressureColor}" Text="{Binding PressurePoints[2].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                                </Frame>
+                                <Frame Grid.Row="5" Grid.Column="4" Padding="0" HeightRequest="70" WidthRequest="55" Margin="-35, 40, 0, 0" CornerRadius="5" BorderColor="{Binding PressurePoints[8].PressureColor}">
+                                    <Label IsVisible="{Binding IsLeftFoot}" BackgroundColor="{Binding PressurePoints[8].PressureColor}" Text="{Binding PressurePoints[8].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
                                 </Frame>
                             </Grid>
                         </ScrollView>
@@ -238,59 +239,59 @@
                                     <ColumnDefinition Width="40"/>
                                 </Grid.ColumnDefinitions>
 
-                                <Frame Grid.Row="0" Grid.Column="3" Padding="0" WidthRequest="30" Margin="0, 0, -20, 0" CornerRadius="5" BorderColor="{Binding PressurePoints[0].PressureColor}">
-                                    <Label IsVisible="{Binding IsRightFoot}" BackgroundColor="{Binding PressurePoints[0].PressureColor}" Text="{Binding PressurePoints[0].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
-                                </Frame>
-                                <Frame Grid.Row="0" Grid.Column="2" Padding="0" WidthRequest="30" HeightRequest="70" Margin="0, 0, -40, 20" CornerRadius="5" BorderColor="{Binding PressurePoints[1].PressureColor}" >
+                                <Frame Grid.Row="0" Grid.Column="3" Padding="0" WidthRequest="30" Margin="0, 0, -20, 0" CornerRadius="5" BorderColor="{Binding PressurePoints[1].PressureColor}">
                                     <Label IsVisible="{Binding IsRightFoot}" BackgroundColor="{Binding PressurePoints[1].PressureColor}" Text="{Binding PressurePoints[1].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
                                 </Frame>
-                                <Frame Grid.Row="0" Grid.Column="1" Padding="0" WidthRequest="30" HeightRequest="70" Margin="0, 0, -60, 20" CornerRadius="5" BorderColor="{Binding PressurePoints[2].PressureColor}">
-                                    <Label IsVisible="{Binding IsRightFoot}" BackgroundColor="{Binding PressurePoints[2].PressureColor}" Text="{Binding PressurePoints[2].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
-                                </Frame>
-                                <Frame Grid.Row="0" Grid.Column="0" Padding="0" WidthRequest="50"  Margin="0, 0, -60, 0" CornerRadius="5" BorderColor="{Binding PressurePoints[3].PressureColor}">
-                                    <Label IsVisible="{Binding IsRightFoot}" BackgroundColor="{Binding PressurePoints[3].PressureColor}" Text="{Binding PressurePoints[3].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
-                                </Frame>
-                                <Frame Grid.Row="1" Grid.Column="3" Padding="0" CornerRadius="5"  BorderColor="{Binding PressurePoints[4].PressureColor}">
-                                    <Label IsVisible="{Binding IsRightFoot}" BackgroundColor="{Binding PressurePoints[4].PressureColor}" Text="{Binding PressurePoints[4].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
-                                </Frame>
-                                <Frame Grid.Row="1" Grid.Column="2" Padding="0" CornerRadius="5" BorderColor="{Binding PressurePoints[5].PressureColor}">
-                                    <Label IsVisible="{Binding IsRightFoot}" BackgroundColor="{Binding PressurePoints[5].PressureColor}"  Text="{Binding PressurePoints[5].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
-                                </Frame>
-                                <Frame Grid.Row="1" Grid.Column="1" Padding="0" CornerRadius="5" BorderColor="{Binding PressurePoints[6].PressureColor}">
-                                    <Label IsVisible="{Binding IsRightFoot}" BackgroundColor="{Binding PressurePoints[6].PressureColor}" Text="{Binding PressurePoints[6].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
-                                </Frame>
-                                <Frame Grid.Row="1" Grid.Column="0" Padding="0" CornerRadius="5" BorderColor="{Binding PressurePoints[7].PressureColor}">
+                                <Frame Grid.Row="0" Grid.Column="2" Padding="0" WidthRequest="30" HeightRequest="70" Margin="0, 0, -40, 20" CornerRadius="5" BorderColor="{Binding PressurePoints[7].PressureColor}" >
                                     <Label IsVisible="{Binding IsRightFoot}" BackgroundColor="{Binding PressurePoints[7].PressureColor}" Text="{Binding PressurePoints[7].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
                                 </Frame>
-                                <Frame Grid.Row="2" Grid.Column="2" Padding="0" WidthRequest="70" Margin="0, 0, -30, 0" CornerRadius="5" BorderColor="{Binding PressurePoints[8].PressureColor}">
-                                    <Label IsVisible="{Binding IsRightFoot}" BackgroundColor="{Binding PressurePoints[8].PressureColor}" Text="{Binding PressurePoints[8].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
-                                </Frame>
-                                <Frame Grid.Row="2" Grid.Column="1" Padding="0" CornerRadius="5" BorderColor="{Binding PressurePoints[9].PressureColor}">
-                                    <Label IsVisible="{Binding IsRightFoot}" BackgroundColor="{Binding PressurePoints[9].PressureColor}" Text="{Binding PressurePoints[9].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
-                                </Frame>
-                                <Frame Grid.Row="2" Grid.Column="0" Padding="0" WidthRequest="50" Margin="-10, 0, 0, 0" CornerRadius="5" BorderColor="{Binding PressurePoints[10].PressureColor}">
-                                    <Label IsVisible="{Binding IsRightFoot}" BackgroundColor="{Binding PressurePoints[10].PressureColor}" Text="{Binding PressurePoints[10].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
-                                </Frame>
-                                <Frame Grid.Row="3" Grid.Column="2" Padding="0" WidthRequest="50" Margin="10, 0, 0, 0" CornerRadius="5" BorderColor="{Binding PressurePoints[11].PressureColor}">
-                                    <Label IsVisible="{Binding IsRightFoot}" BackgroundColor="{Binding PressurePoints[11].PressureColor}" Text="{Binding PressurePoints[11].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
-                                </Frame>
-                                <Frame Grid.Row="3" Grid.Column="1" Padding="0" CornerRadius="5" BorderColor="{Binding PressurePoints[12].PressureColor}">
-                                    <Label IsVisible="{Binding IsRightFoot}" BackgroundColor="{Binding PressurePoints[12].PressureColor}" Text="{Binding PressurePoints[12].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
-                                </Frame>
-                                <Frame Grid.Row="3" Grid.Column="0" Padding="0" CornerRadius="5" BorderColor="{Binding PressurePoints[13].PressureColor}">
+                                <Frame Grid.Row="0" Grid.Column="1" Padding="0" WidthRequest="30" HeightRequest="70" Margin="0, 0, -60, 20" CornerRadius="5" BorderColor="{Binding PressurePoints[13].PressureColor}">
                                     <Label IsVisible="{Binding IsRightFoot}" BackgroundColor="{Binding PressurePoints[13].PressureColor}" Text="{Binding PressurePoints[13].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
                                 </Frame>
-                                <Frame Grid.Row="4" Grid.Column="0" Padding="0" HeightRequest="60" WidthRequest="55" Margin="0, 10, -35, 0" CornerRadius="5" BorderColor="{Binding PressurePoints[14].PressureColor}">
-                                    <Label IsVisible="{Binding IsRightFoot}" BackgroundColor="{Binding PressurePoints[14].PressureColor}" Text="{Binding PressurePoints[14].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                                <Frame Grid.Row="0" Grid.Column="0" Padding="0" WidthRequest="50"  Margin="0, 0, -60, 0" CornerRadius="5" BorderColor="{Binding PressurePoints[17].PressureColor}">
+                                    <Label IsVisible="{Binding IsRightFoot}" BackgroundColor="{Binding PressurePoints[17].PressureColor}" Text="{Binding PressurePoints[17].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
                                 </Frame>
-                                <Frame Grid.Row="4" Grid.Column="2" Padding="0" HeightRequest="60" WidthRequest="55" Margin="-35, 10, 0, 0"  CornerRadius="5" BorderColor="{Binding PressurePoints[15].PressureColor}">
-                                    <Label IsVisible="{Binding IsRightFoot}" BackgroundColor="{Binding PressurePoints[15].PressureColor}" Text="{Binding PressurePoints[15].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                                <Frame Grid.Row="1" Grid.Column="3" Padding="0" CornerRadius="5"  BorderColor="{Binding PressurePoints[0].PressureColor}">
+                                    <Label IsVisible="{Binding IsRightFoot}" BackgroundColor="{Binding PressurePoints[0].PressureColor}" Text="{Binding PressurePoints[0].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
                                 </Frame>
-                                <Frame Grid.Row="5" Grid.Column="0" Padding="0" HeightRequest="70" WidthRequest="55" Margin="0, 40, -35, 0" CornerRadius="5" BorderColor="{Binding PressurePoints[16].PressureColor}">
+                                <Frame Grid.Row="1" Grid.Column="2" Padding="0" CornerRadius="5" BorderColor="{Binding PressurePoints[6].PressureColor}">
+                                    <Label IsVisible="{Binding IsRightFoot}" BackgroundColor="{Binding PressurePoints[6].PressureColor}"  Text="{Binding PressurePoints[6].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                                </Frame>
+                                <Frame Grid.Row="1" Grid.Column="1" Padding="0" CornerRadius="5" BorderColor="{Binding PressurePoints[12].PressureColor}">
+                                    <Label IsVisible="{Binding IsRightFoot}" BackgroundColor="{Binding PressurePoints[12].PressureColor}" Text="{Binding PressurePoints[12].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                                </Frame>
+                                <Frame Grid.Row="1" Grid.Column="0" Padding="0" CornerRadius="5" BorderColor="{Binding PressurePoints[16].PressureColor}">
                                     <Label IsVisible="{Binding IsRightFoot}" BackgroundColor="{Binding PressurePoints[16].PressureColor}" Text="{Binding PressurePoints[16].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
                                 </Frame>
-                                <Frame Grid.Row="5" Grid.Column="2" Padding="0" HeightRequest="70" WidthRequest="55" Margin="-35, 40, 0, 0" CornerRadius="5" BorderColor="{Binding PressurePoints[17].PressureColor}">
-                                    <Label IsVisible="{Binding IsRightFoot}" BackgroundColor="{Binding PressurePoints[17].PressureColor}" Text="{Binding PressurePoints[17].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                                <Frame Grid.Row="2" Grid.Column="2" Padding="0" WidthRequest="70" Margin="0, 0, -30, 0" CornerRadius="5" BorderColor="{Binding PressurePoints[5].PressureColor}">
+                                    <Label IsVisible="{Binding IsRightFoot}" BackgroundColor="{Binding PressurePoints[5].PressureColor}" Text="{Binding PressurePoints[5].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                                </Frame>
+                                <Frame Grid.Row="2" Grid.Column="1" Padding="0" CornerRadius="5" BorderColor="{Binding PressurePoints[11].PressureColor}">
+                                    <Label IsVisible="{Binding IsRightFoot}" BackgroundColor="{Binding PressurePoints[11].PressureColor}" Text="{Binding PressurePoints[11].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                                </Frame>
+                                <Frame Grid.Row="2" Grid.Column="0" Padding="0" WidthRequest="50" Margin="-10, 0, 0, 0" CornerRadius="5" BorderColor="{Binding PressurePoints[15].PressureColor}">
+                                    <Label IsVisible="{Binding IsRightFoot}" BackgroundColor="{Binding PressurePoints[15].PressureColor}" Text="{Binding PressurePoints[15].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                                </Frame>
+                                <Frame Grid.Row="3" Grid.Column="2" Padding="0" WidthRequest="50" Margin="10, 0, 0, 0" CornerRadius="5" BorderColor="{Binding PressurePoints[4].PressureColor}">
+                                    <Label IsVisible="{Binding IsRightFoot}" BackgroundColor="{Binding PressurePoints[4].PressureColor}" Text="{Binding PressurePoints[4].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                                </Frame>
+                                <Frame Grid.Row="3" Grid.Column="1" Padding="0" CornerRadius="5" BorderColor="{Binding PressurePoints[10].PressureColor}">
+                                    <Label IsVisible="{Binding IsRightFoot}" BackgroundColor="{Binding PressurePoints[10].PressureColor}" Text="{Binding PressurePoints[10].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                                </Frame>
+                                <Frame Grid.Row="3" Grid.Column="0" Padding="0" CornerRadius="5" BorderColor="{Binding PressurePoints[14].PressureColor}">
+                                    <Label IsVisible="{Binding IsRightFoot}" BackgroundColor="{Binding PressurePoints[14].PressureColor}" Text="{Binding PressurePoints[14].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                                </Frame>
+                                <Frame Grid.Row="4" Grid.Column="0" Padding="0" HeightRequest="60" WidthRequest="55" Margin="0, 10, -35, 0" CornerRadius="5" BorderColor="{Binding PressurePoints[3].PressureColor}">
+                                    <Label IsVisible="{Binding IsRightFoot}" BackgroundColor="{Binding PressurePoints[3].PressureColor}" Text="{Binding PressurePoints[3].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                                </Frame>
+                                <Frame Grid.Row="4" Grid.Column="2" Padding="0" HeightRequest="60" WidthRequest="55" Margin="-35, 10, 0, 0"  CornerRadius="5" BorderColor="{Binding PressurePoints[9].PressureColor}">
+                                    <Label IsVisible="{Binding IsRightFoot}" BackgroundColor="{Binding PressurePoints[9].PressureColor}" Text="{Binding PressurePoints[9].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                                </Frame>
+                                <Frame Grid.Row="5" Grid.Column="0" Padding="0" HeightRequest="70" WidthRequest="55" Margin="0, 40, -35, 0" CornerRadius="5" BorderColor="{Binding PressurePoints[2].PressureColor}">
+                                    <Label IsVisible="{Binding IsRightFoot}" BackgroundColor="{Binding PressurePoints[2].PressureColor}" Text="{Binding PressurePoints[2].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                                </Frame>
+                                <Frame Grid.Row="5" Grid.Column="2" Padding="0" HeightRequest="70" WidthRequest="55" Margin="-35, 40, 0, 0" CornerRadius="5" BorderColor="{Binding PressurePoints[8].PressureColor}">
+                                    <Label IsVisible="{Binding IsRightFoot}" BackgroundColor="{Binding PressurePoints[8].PressureColor}" Text="{Binding PressurePoints[8].MartixValueItem}" TextColor="White" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
                                 </Frame>
                             </Grid>
                         </ScrollView>
