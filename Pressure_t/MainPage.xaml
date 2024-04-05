@@ -305,17 +305,18 @@
                 </HorizontalStackLayout>
                 <Button x:Name="SetMartixLeft" Text="设置为左脚"
                     TextColor="{Binding ButtonTextColor_MartixLeft}"
-                    CornerRadius="13"
+                    CornerRadius="5"
                     Command="{Binding MartixSettingCommand}"
                     CommandParameter="MartixSettingLeft"
                     BackgroundColor="LightGray"
                     HeightRequest="46"
                     WidthRequest="130"
-                    BorderWidth="2">
+                    BorderWidth="2"
+                    >
                 </Button>
                 <Button x:Name="SetMartixRight" Text="设置为右脚"
                     TextColor="{Binding ButtonTextColor_MartixRight}"
-                    CornerRadius="13"
+                    CornerRadius="5"
                     Command="{Binding MartixSettingCommand}"
                     CommandParameter="MartixSettingRight"
                     BackgroundColor="LightGray"

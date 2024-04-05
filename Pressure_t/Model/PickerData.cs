@@ -39,12 +39,12 @@ namespace Pressure_t.Model
             // 初始化数据源
             availableCOM = new ObservableCollection<string> { };
 
-/*            // 设置定时器以定期刷新串口列表
+            // 设置定时器以定期刷新串口列表
             refreshTimer = new Timer(5000); // 设置定时器的间隔时间，例如5000毫秒（5秒）
             refreshTimer.Elapsed += OnTimedEvent; // 每当指定的时间间隔完成时执行的事件
             refreshTimer.AutoReset = true; // 设置是否重复执行
-            refreshTimer.Enabled = true; // 启动定时器*/
-            
+            refreshTimer.Enabled = true; // 启动定时器
+
 
             GetAllPortNames(); // 初始调用以填充列表
         }

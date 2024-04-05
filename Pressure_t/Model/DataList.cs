@@ -115,7 +115,7 @@ namespace Pressure_t.Model
     {
         const double MIN_ADC_VALUE = 0;
         public Color OnButtonActiveColor = Color.FromRgb(0, 255, 0);
-        public Color OnButtonNormalColor = Color.FromRgb(0, 0, 0);
+        public Color OnButtonNormalColor = Color.FromRgb(139, 0, 0);
         public Color OnMartixActiveColor = Color.FromRgb(30, 144, 255);
         public Color OnMartixNormalColor = Color.FromRgb(211, 211, 211);
 
@@ -390,8 +390,8 @@ namespace Pressure_t.Model
         private bool _isSerialPortOpen = false;
         private Color _buttonTextColor = Color.FromRgba("#000000");
         private Color _textColor = Color.FromRgba("#000000");
-        private Color _buttonTextColor_MartixLeft = Color.FromRgba("#000000");
-        private Color _buttonTextColor_MartixRight = Color.FromRgba("#000000");
+        private Color _buttonTextColor_MartixLeft = Color.FromRgb(139, 0, 0);
+        private Color _buttonTextColor_MartixRight = Color.FromRgb(139, 0, 0);
         private Color _martixLeftBgColor = Color.FromRgba("#bdc3c7");
         private Color _martixRightBgColor = Color.FromRgba("#bdc3c7");
 
