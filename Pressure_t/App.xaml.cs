@@ -30,7 +30,7 @@ public partial class App : Application
         var window = base.CreateWindow(activationState);
 
         const int newWidth = 1130;
-        const int newHeight = 730;
+        const int newHeight = 680;
 
         window.Width = newWidth;
         window.Height = newHeight;
@@ -40,7 +40,8 @@ public partial class App : Application
         // Center the window
         window.X = (displayInfo.Width / displayInfo.Density - window.Width) / 2;
         window.Y = (displayInfo.Height / displayInfo.Density - window.Height) / 2;
-
+        window.Title = "Kingsense RTPressure Evaluation Software";
+        
         return window;
     }
 }

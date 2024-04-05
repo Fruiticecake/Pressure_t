@@ -5,20 +5,9 @@
              xmlns:model="clr-namespace:Pressure_t.Model"
              xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.Maui;assembly=LiveChartsCore.SkiaSharpView.Maui"
              x:Class="Pressure_t.MainPage"
-             Title="Software"
+             NavigationPage.HasNavigationBar="False"
              >
-    <ContentPage.ToolbarItems>
-        <ToolbarItem Text="设置"/>
-    </ContentPage.ToolbarItems>
 
-    <!--ContentPage.ToolbarItems>
-        <ToolbarItem Text="Button 1"
-                     Order="Primary"
-                     Priority="0"/>
-        <ToolbarItem Text="Button 2"
-                     Order="Primary"
-                     Priority="1"/>
-    </ContentPage.ToolbarItems>-->
     <ContentPage.BindingContext>
         <model:DataStorageListModel/>
     </ContentPage.BindingContext>
@@ -319,7 +308,7 @@
                     CornerRadius="13"
                     Command="{Binding MartixSettingCommand}"
                     CommandParameter="MartixSettingLeft"
-                    BackgroundColor="#cfd8dc"
+                    BackgroundColor="LightGray"
                     HeightRequest="46"
                     WidthRequest="130"
                     BorderWidth="2">
@@ -329,7 +318,7 @@
                     CornerRadius="13"
                     Command="{Binding MartixSettingCommand}"
                     CommandParameter="MartixSettingRight"
-                    BackgroundColor="#cfd8dc"
+                    BackgroundColor="LightGray"
                     HeightRequest="46"
                     WidthRequest="130"
                     BorderWidth="2">
@@ -388,5 +377,17 @@
                         BackgroundColor="White" TextColor="#FFD700"/>-->
             </VerticalStackLayout>
         </HorizontalStackLayout>
+        <Grid BackgroundColor="#01b7c2" HorizontalOptions="FillAndExpand" VerticalOptions="Center" >
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Label Text="www.ks-chip.com" TextColor="DarkRed" FontSize="Micro"  Grid.Column="0" Margin="20, 0, 0, 0" HorizontalTextAlignment="Start" />
+            <Label Text="copyright@Kingsense" TextColor="DarkRed" FontSize="Micro" Grid.Column="1" HorizontalTextAlignment="Center" />
+            <Label Text="Version-1.0" TextColor="DarkRed" FontSize="Micro" Grid.Column="2" Margin="0, 0, 20, 0" HorizontalTextAlignment="End" />
+        </Grid>
+
     </VerticalStackLayout>
 </ContentPage>

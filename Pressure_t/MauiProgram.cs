@@ -2,7 +2,8 @@
 using SkiaSharp.Views.Maui.Controls.Hosting;
 using SkiaSharp;
 using LiveChartsCore.SkiaSharpView;
-
+using Microsoft.Maui.LifecycleEvents;
+using Pressure_t.Services;
 namespace Pressure_t;
 
 public static class MauiProgram
@@ -25,7 +26,19 @@ public static class MauiProgram
             });
         // 加载全局字体
         GlobalTypeface = SKTypeface.FromFile("Resources/Fonts/msyh.ttc");
+        builder.ConfigureLifecycleEvents(lifecycle =>
+        {
+#if WINDOWS
+                
+                         lifecycle.AddWindows(windows => windows.OnWindowCreated((del) => {
+                del.ExtendsContentIntoTitleBar = false;
+            }));
+#endif
+        });
 
+#if WINDOWS
+            builder.Services.AddSingleton<ITrayService, Pressure_t.Platforms.Windows.TrayService>();
+#endif
 #if DEBUG
         builder.Logging.AddDebug();
 #endif

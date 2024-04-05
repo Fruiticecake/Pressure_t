@@ -845,10 +845,11 @@ namespace Pressure_t.Model
                 //}
                 // 通知视图更新
                 // OnPropertyChanged(nameof(Series));
+                Debug.WriteLine("进入martix");
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
                     string[] pressureValues = data.Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries);
-
+                    Debug.WriteLine(string.Join(", ", pressureValues));
                     if (pressureValues.Length == 18)
                     {
                         for (int i = 0; i < 18; i++)
@@ -857,9 +858,10 @@ namespace Pressure_t.Model
                             // UpdatePressurePoint(i, double.Parse(pressureValues[i]));
                             PressurePoints[i].MartixValueItem = double.Parse(pressureValues[i]);
                             Debug.WriteLine(PressurePoints[i].MartixValueItem);
-                            OnPropertyChanged(nameof(PressurePoints));
+                            
                         }
                         SaveMartixData();
+                        OnPropertyChanged(nameof(PressurePoints));
                     }
                 });
 
