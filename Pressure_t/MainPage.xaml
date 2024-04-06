@@ -76,6 +76,7 @@
                         Grid.Row="0"
                         Series="{Binding Series}"
                         XAxes="{Binding ScrollableAxes}"
+                        YAxes="{Binding YAxes}"
                         ZoomMode="X"
                         DrawMargin="{Binding Margin}"
                         UpdateStartedCommand="{Binding ChartUpdatedCommand}"

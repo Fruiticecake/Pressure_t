@@ -118,6 +118,8 @@ namespace Pressure_t.Model
         public Color OnButtonNormalColor = Color.FromRgb(139, 0, 0);
         public Color OnMartixActiveColor = Color.FromRgb(30, 144, 255);
         public Color OnMartixNormalColor = Color.FromRgb(211, 211, 211);
+        private static readonly SKColor s_blue = new(25, 118, 210);
+        private static readonly SKColor s_red = new(229, 57, 53);
 
         // public ObservableCollection<PressurePoint> PressurePoints { get; set; }
 
@@ -161,20 +163,22 @@ namespace Pressure_t.Model
                 {
                     new LineSeries<ObservablePoint>
                     {
-                        Name = "压力/N",
+                        Name = "Pressure",
                         Values = new ObservableCollection<ObservablePoint>(),
                         GeometryStroke = null,
                         GeometryFill = null,
-                        DataPadding = new(0, 1)
+                        DataPadding = new(0, 1),
+                        ScalesYAt = 0
                     },
 
                     new LineSeries<ObservablePoint>
                     {
-                        Name = "电压/V",
+                        Name = "Voltage",
                         Values = new ObservableCollection<ObservablePoint>(),
                         GeometryStroke = null,
                         GeometryFill = null,
-                        DataPadding = new(0, 1)
+                        DataPadding = new(0, 1),
+                        ScalesYAt = 1
                     }
                 };
 
@@ -182,7 +186,7 @@ namespace Pressure_t.Model
                 {
                     new LineSeries<ObservablePoint>
                     {
-                        Name = "压力/N",
+                        Name = "Pressure",
                         Values = new ObservableCollection<ObservablePoint>(),
                         GeometryStroke = null,
                         GeometryFill = null,
@@ -190,13 +194,47 @@ namespace Pressure_t.Model
                     },
                     new LineSeries<ObservablePoint>
                     {
-                        Name = "电压/V",
+                        Name = "Voltage",
                         Values = new ObservableCollection<ObservablePoint>(),
                         GeometryStroke = null,
                         GeometryFill = null,
                         DataPadding = new(0, 1)
                     }
                 };
+
+            YAxes = new ICartesianAxis[]
+{
+                    new Axis // the "units" and "tens" series will be scaled on this axis
+                    {
+                        Name = "Pressure/g",
+                        NameTextSize = 14,
+                        NamePaint = new SolidColorPaint(s_blue),
+                        NamePadding = new LiveChartsCore.Drawing.Padding(0, 20),
+                        Padding =  new LiveChartsCore.Drawing.Padding(0, 0, 20, 0),
+                        TextSize = 12,
+                        LabelsPaint = new SolidColorPaint(s_blue),
+                        TicksPaint = new SolidColorPaint(s_blue),
+                        SubticksPaint = new SolidColorPaint(s_blue),
+                        DrawTicksPath = true
+                    },
+                    new Axis // the "hundreds" series will be scaled on this axis
+                    {
+                        Name = "Voltage/V",
+                        NameTextSize = 14,
+                        MinLimit = 0,
+                        MaxLimit = RefVoltage[RefSelectedIndex],
+                        NamePaint = new SolidColorPaint(s_red),
+                        NamePadding = new LiveChartsCore.Drawing.Padding(0, 5),
+                        Padding =  new LiveChartsCore.Drawing.Padding(5, 0, 0, 0),
+                        TextSize = 12,
+                        LabelsPaint = new SolidColorPaint(s_red),
+                        TicksPaint = new SolidColorPaint(s_red),
+                        SubticksPaint = new SolidColorPaint(s_red),
+                        DrawTicksPath = true,
+                        ShowSeparatorLines = false,
+                        Position = LiveChartsCore.Measure.AxisPosition.End
+                    }
+            };
 
             ScrollableAxes = new[] { new Axis() };
 
@@ -246,7 +284,7 @@ namespace Pressure_t.Model
             }
         }
 
-        private int _baudRateSelectedIndex;
+        private int _baudRateSelectedIndex = 5;
         public int BaudRateSelectedIndex
         {
             get => _baudRateSelectedIndex;
@@ -268,7 +306,7 @@ namespace Pressure_t.Model
             }
         }
 
-        private int _refSelectedIndex;
+        private int _refSelectedIndex = 4;
         public int RefSelectedIndex
         {
             get => _refSelectedIndex;
@@ -322,6 +360,7 @@ namespace Pressure_t.Model
                 OnPropertyChanged(nameof(ScrollbarSeries));
             }
         }
+        public ICartesianAxis[] YAxes { get; set; }
 
         public Axis[] ScrollableAxes { get; set; }
         public Axis[] InvisibleX { get; set; }
@@ -1347,19 +1386,22 @@ namespace Pressure_t.Model
                 {
                     new LineSeries<ObservablePoint>
                     {
-                        Name = "压力/N",
+                        Name = "Pressure",
                         Values = new ObservableCollection<ObservablePoint>(),
                         GeometryStroke = null,
                         GeometryFill = null,
-                        DataPadding = new(0, 1)
+                        DataPadding = new(0, 1),
+                        ScalesYAt = 0
                     },
+
                     new LineSeries<ObservablePoint>
                     {
-                        Name = "电压/V",
+                        Name = "Voltage",
                         Values = new ObservableCollection<ObservablePoint>(),
                         GeometryStroke = null,
                         GeometryFill = null,
-                        DataPadding = new(0, 1)
+                        DataPadding = new(0, 1),
+                        ScalesYAt = 1
                     }
                 };
 
@@ -1367,7 +1409,7 @@ namespace Pressure_t.Model
                 {
                     new LineSeries<ObservablePoint>
                     {
-                        Name = "压力/N",
+                        Name = "Pressure",
                         Values = new ObservableCollection<ObservablePoint>(),
                         GeometryStroke = null,
                         GeometryFill = null,
@@ -1375,13 +1417,48 @@ namespace Pressure_t.Model
                     },
                     new LineSeries<ObservablePoint>
                     {
-                        Name = "电压/V",
+                        Name = "Voltage",
                         Values = new ObservableCollection<ObservablePoint>(),
                         GeometryStroke = null,
                         GeometryFill = null,
                         DataPadding = new(0, 1)
                     }
                 };
+
+                YAxes = new ICartesianAxis[]
+    {
+                    new Axis // the "units" and "tens" series will be scaled on this axis
+                    {
+                        Name = "Pressure/g",
+                        NameTextSize = 14,
+                        NamePaint = new SolidColorPaint(s_blue),
+                        NamePadding = new LiveChartsCore.Drawing.Padding(0, 20),
+                        Padding =  new LiveChartsCore.Drawing.Padding(0, 0, 20, 0),
+                        TextSize = 12,
+                        LabelsPaint = new SolidColorPaint(s_blue),
+                        TicksPaint = new SolidColorPaint(s_blue),
+                        SubticksPaint = new SolidColorPaint(s_blue),
+                        DrawTicksPath = true
+                    },
+                    new Axis // the "hundreds" series will be scaled on this axis
+                    {
+                        Name = "Voltage/V",
+                        NameTextSize = 14,
+                        MinLimit = 0,
+                        MaxLimit = RefVoltage[RefSelectedIndex],
+                        NamePaint = new SolidColorPaint(s_red),
+                        NamePadding = new LiveChartsCore.Drawing.Padding(0, 5),
+                        Padding =  new LiveChartsCore.Drawing.Padding(5, 0, 0, 0),
+                        TextSize = 12,
+                        LabelsPaint = new SolidColorPaint(s_red),
+                        TicksPaint = new SolidColorPaint(s_red),
+                        SubticksPaint = new SolidColorPaint(s_red),
+                        DrawTicksPath = true,
+                        ShowSeparatorLines = false,
+                        Position = LiveChartsCore.Measure.AxisPosition.End
+                    }
+                };
+
 
                 ScrollableAxes = new[] { new Axis() };
 
