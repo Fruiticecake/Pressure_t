@@ -21,6 +21,9 @@ using System.Reflection.Metadata;
 using Microsoft.Maui.Graphics;
 using ClosedXML.Excel;
 using System.Linq;
+using System.Collections.Concurrent;
+using System.Threading;
+using Timer = System.Threading.Timer;
 
 namespace Pressure_t.Model
 {
@@ -121,6 +124,10 @@ namespace Pressure_t.Model
         private static readonly SKColor s_blue = new(25, 118, 210);
         private static readonly SKColor s_red = new(229, 57, 53);
 
+        private ConcurrentQueue<PointStorage> dataQueue = new ConcurrentQueue<PointStorage>();
+        private SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1, 1);
+        private Timer FileSaveTimer;
+
         // public ObservableCollection<PressurePoint> PressurePoints { get; set; }
 
         private ObservableCollection<PressurePoint> _pressurePoints;
@@ -158,7 +165,7 @@ namespace Pressure_t.Model
         {
             _dialogService = dialogService;
             PickerCOMInit();
-
+            FileSaveTimer = new Timer(ProcessDataQueue, null, 0, 1000);
             Series = new ObservableCollection<ISeries>
                 {
                     new LineSeries<ObservablePoint>
@@ -907,9 +914,25 @@ namespace Pressure_t.Model
             }
 
         }
+        // 优化后的异步执行保存操作
+        public async Task SaveDataAsync(PointStorage data)
+        {
+            try
+            {
+                string filePath = CreateFile(); 
+
+                // 异步执行保存操作，以减少对UI线程的影响
+                await Task.Run(() => SaveSingleData(filePath, data)).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                // 处理可能发生的异常，例如记录日志或通知用户
+                Console.WriteLine($"An error occurred: {ex.Message}");
+            }
+        }
 
         int numCount = 0;
-        private void UpdateRTAValue(string strValue)
+        private async void UpdateRTAValue(string strValue)
         {
             if (double.TryParse(strValue, out double numericValue))
             {
@@ -933,50 +956,85 @@ namespace Pressure_t.Model
                 //        values.Add(PressureNumeric);
                 //    }
                 //}
+                //数据加入队列中
+                ReciveSingleData();
 
-
-                // 保存到excel表格当中
-                SaveSingleData();
 
                 // 添加图表数据
-                ObservablePoint _values = new ObservablePoint(++numCount, PressureNumeric);
-                ObservablePoint _RTAvalues = new ObservablePoint(numCount, RTVNumeric);
-
-                if (Series[0] is LineSeries<ObservablePoint> lineSeries)
-                {
-                    if (lineSeries.Values is ObservableCollection<ObservablePoint> values)
-                    {
-                        values.Add(_values);
-                    }
-                }
-                
-                if (Series[1] is LineSeries<ObservablePoint> lineDoubleSeries)
-                {
-                    if (lineDoubleSeries.Values is ObservableCollection<ObservablePoint> values)
-                    {
-                        values.Add(_RTAvalues);
-                    }
-                }
-
-                if (ScrollbarSeries[0] is LineSeries<ObservablePoint> scrollbarSeries)
-                {
-                    if (scrollbarSeries.Values is ObservableCollection<ObservablePoint> values)
-                    {
-                        values.Add(_values);
-                    }
-                }
-
-                if (ScrollbarSeries[1] is LineSeries<ObservablePoint> scrollbarDoubleSeries)
-                {
-                    if (scrollbarDoubleSeries.Values is ObservableCollection<ObservablePoint> values)
-                    {
-                        values.Add(_RTAvalues);
-                    }
-                }
+                AddChartData(++numCount, PressureNumeric, RTVNumeric);
 
             }
 
         }
+        private void AddToSeries(LineSeries<ObservablePoint> series, double x, double y)
+        {
+            if (series.Values is ObservableCollection<ObservablePoint> values)
+            {
+                values.Add(new ObservablePoint(x, y));
+
+                // 如果数据点过多，考虑移除最旧的数据点
+                //if (values.Count > MAX_DATA_POINTS)
+                //{
+                //    values.RemoveAt(0);
+                //}
+            }
+        }
+        private void AddChartData(double xValue, double primaryYValue, double secondaryYValue)
+        {
+            // 主线程中执行UI更新
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                AddToSeries((LineSeries<ObservablePoint>)Series[0], xValue, primaryYValue);
+                AddToSeries((LineSeries<ObservablePoint>)Series[1], xValue, secondaryYValue);
+                AddToSeries((LineSeries<ObservablePoint>)ScrollbarSeries[0], xValue, primaryYValue);
+                AddToSeries((LineSeries<ObservablePoint>)ScrollbarSeries[1], xValue, secondaryYValue);
+            });
+        }
+
+        public class PointStorage
+        {
+            public string DataTime { get; set; }
+            public double RTANumeric { get; set; }
+            public double RTVNumeric { get; set; }
+            public double PressureNumeric { get; set; }
+        }
+
+        private void ReciveSingleData()
+        {
+            PointStorage data = new PointStorage()
+            {
+                DataTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+                PressureNumeric = PressureNumeric,
+                RTANumeric = RTANumeric,
+                RTVNumeric = RTVNumeric,
+            };
+            // 将接收到的数据放入队列
+            dataQueue.Enqueue(data);
+        }
+
+
+        private async void ProcessDataQueue(object state)
+        {
+            // 批量处理队列中的数据
+            // 注意：这里的实现需要确保线程安全
+            while (!dataQueue.IsEmpty)
+            {
+                if (dataQueue.TryDequeue(out PointStorage data))
+                {
+                    await semaphoreSlim.WaitAsync(); // 异步等待获取锁
+                    try
+                    {
+                        // 异步保存数据，SaveDataAsync 是一个异步方法
+                        await SaveDataAsync(data);
+                    }
+                    finally
+                    {
+                        semaphoreSlim.Release(); // 释放锁
+                    }
+                }
+            }
+        }
+
         private void SerialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
             if (IsDataSave)
@@ -1000,8 +1058,7 @@ namespace Pressure_t.Model
             }
 
         }
-
-        private void SaveSingleData()
+        private string CreateFile()
         {
             // 获取当前日期并将其转换为字符串格式，例如 "2024-03-25"
             string date = DateTime.Now.ToString("yyyy-MM-dd");
@@ -1024,11 +1081,21 @@ namespace Pressure_t.Model
             // 检查DataItems中是否包含该文件名
             bool fileExists = DataItems.Any(item => item.ExcelPath.Equals(filePath));
 
-            if (false == fileExists)
+
+            MainThread.BeginInvokeOnMainThread(() =>
             {
-                DataItems.Add(new DataExcelPath { ExcelPath = filePath });
-                OnPropertyChanged(nameof(DataItems));
-            }
+                if (false == fileExists)
+                {
+                    DataItems.Add(new DataExcelPath { ExcelPath = filePath });
+                    OnPropertyChanged(nameof(DataItems));
+                }
+            });
+            return filePath;
+
+        }
+
+        private void SaveSingleData(string filePath, PointStorage data)
+        {
 
             // 打开现有的工作簿并添加数据
             using (var workbook = new XLWorkbook(filePath))
@@ -1050,10 +1117,11 @@ namespace Pressure_t.Model
                 else
                 {
                     // 要添加的数据
-                    worksheet.Cell("A" + nextRow).Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"); ;
-                    worksheet.Cell("B" + nextRow).Value = RTANumeric;
-                    worksheet.Cell("C" + nextRow).Value = RTVNumeric;
-                    worksheet.Cell("D" + nextRow).Value = PressureNumeric;
+                    //worksheet.Cell("A" + nextRow).Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"); 
+                    worksheet.Cell("A" + nextRow).Value = data.DataTime;
+                    worksheet.Cell("B" + nextRow).Value = data.RTANumeric;
+                    worksheet.Cell("C" + nextRow).Value = data.RTVNumeric;
+                    worksheet.Cell("D" + nextRow).Value = data.PressureNumeric;
                 }
 
                 // 保存工作簿
