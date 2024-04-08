@@ -124,9 +124,12 @@ namespace Pressure_t.Model
         private static readonly SKColor s_blue = new(25, 118, 210);
         private static readonly SKColor s_red = new(229, 57, 53);
 
-        private ConcurrentQueue<PointStorage> dataQueue = new ConcurrentQueue<PointStorage>();
+        private ConcurrentQueue<SinglePointStorage> dataQueue = new ConcurrentQueue<SinglePointStorage>();
+        private ConcurrentQueue<MartixPointStorage> dataMartixQueue = new ConcurrentQueue<MartixPointStorage>();
+
         private SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1, 1);
         private Timer FileSaveTimer;
+        private Timer FileMartixSaveTimer;
 
         // public ObservableCollection<PressurePoint> PressurePoints { get; set; }
 
@@ -166,6 +169,8 @@ namespace Pressure_t.Model
             _dialogService = dialogService;
             PickerCOMInit();
             FileSaveTimer = new Timer(ProcessDataQueue, null, 0, 1000);
+            FileMartixSaveTimer = new Timer(ProcessMartixDataQueue, null, 0, 1000);
+
             Series = new ObservableCollection<ISeries>
                 {
                     new LineSeries<ObservablePoint>
@@ -891,22 +896,25 @@ namespace Pressure_t.Model
                 //}
                 // 通知视图更新
                 // OnPropertyChanged(nameof(Series));
-                Debug.WriteLine("进入martix");
+
+                string[] pressureValues = data.Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries);
+                string filePath = CreateFile("PressureMartixData");
+
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
-                    string[] pressureValues = data.Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries);
-                    Debug.WriteLine(string.Join(", ", pressureValues));
+                    // Debug.WriteLine(string.Join(", ", pressureValues));
                     if (pressureValues.Length == 18)
                     {
                         for (int i = 0; i < 18; i++)
                         {
                             // 更新压力值，并通知UI
                             // UpdatePressurePoint(i, double.Parse(pressureValues[i]));
-                            PressurePoints[i].MartixValueItem = double.Parse(pressureValues[i]);
-                            Debug.WriteLine(PressurePoints[i].MartixValueItem);
+                            PressurePoints[i].MartixValueItem = int.Parse(pressureValues[i]);
+                            // Debug.WriteLine(PressurePoints[i].MartixValueItem);
                             
                         }
-                        SaveMartixData();
+                        ReciveMartixData(pressureValues);
+                        // SaveMartixData(filePath);
                         OnPropertyChanged(nameof(PressurePoints));
                     }
                 });
@@ -915,11 +923,11 @@ namespace Pressure_t.Model
 
         }
         // 优化后的异步执行保存操作
-        public async Task SaveDataAsync(PointStorage data)
+        public async Task SaveDataAsync(SinglePointStorage data)
         {
             try
             {
-                string filePath = CreateFile(); 
+                string filePath = CreateFile("PressureSingleData"); 
 
                 // 异步执行保存操作，以减少对UI线程的影响
                 await Task.Run(() => SaveSingleData(filePath, data)).ConfigureAwait(false);
@@ -931,8 +939,25 @@ namespace Pressure_t.Model
             }
         }
 
+        // 优化后的异步执行保存操作
+        public async Task SaveMartixDataAsync(MartixPointStorage data)
+        {
+            try
+            {
+                string filePath = CreateFile("PressureMartixData");
+
+                // 异步执行保存操作，以减少对UI线程的影响
+                await Task.Run(() => SaveMartixData(filePath, data)).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                // 处理可能发生的异常，例如记录日志或通知用户
+                Console.WriteLine($"An error occurred: {ex.Message}");
+            }
+        }
+
         int numCount = 0;
-        private async void UpdateRTAValue(string strValue)
+        private void UpdateRTAValue(string strValue)
         {
             if (double.TryParse(strValue, out double numericValue))
             {
@@ -991,7 +1016,7 @@ namespace Pressure_t.Model
             });
         }
 
-        public class PointStorage
+        public class SinglePointStorage
         {
             public string DataTime { get; set; }
             public double RTANumeric { get; set; }
@@ -1001,7 +1026,7 @@ namespace Pressure_t.Model
 
         private void ReciveSingleData()
         {
-            PointStorage data = new PointStorage()
+            SinglePointStorage data = new SinglePointStorage()
             {
                 DataTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
                 PressureNumeric = PressureNumeric,
@@ -1012,6 +1037,30 @@ namespace Pressure_t.Model
             dataQueue.Enqueue(data);
         }
 
+        public class MartixPointStorage
+        {
+            public string DataTime { get; set; }
+            public bool IsRight { get; set; }
+            public bool IsLeft { get; set; }
+            public int[] MartixPointArray { get; set; } = new int[18];
+        }
+
+        private void ReciveMartixData(string[] pressureValues)
+        {
+            // 将字符串数组转换为整数数组
+            int[] _martixPointArray = Array.ConvertAll(pressureValues, int.Parse);
+
+            MartixPointStorage data = new MartixPointStorage()
+            {
+                DataTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+                IsRight = IsRightFoot,
+                IsLeft = IsLeftFoot,
+                MartixPointArray = _martixPointArray,
+
+            };
+            // 将接收到的数据放入队列
+            dataMartixQueue.Enqueue(data);
+        }
 
         private async void ProcessDataQueue(object state)
         {
@@ -1019,13 +1068,35 @@ namespace Pressure_t.Model
             // 注意：这里的实现需要确保线程安全
             while (!dataQueue.IsEmpty)
             {
-                if (dataQueue.TryDequeue(out PointStorage data))
+                if (dataQueue.TryDequeue(out SinglePointStorage data))
                 {
                     await semaphoreSlim.WaitAsync(); // 异步等待获取锁
                     try
                     {
                         // 异步保存数据，SaveDataAsync 是一个异步方法
                         await SaveDataAsync(data);
+                    }
+                    finally
+                    {
+                        semaphoreSlim.Release(); // 释放锁
+                    }
+                }
+            }
+        }
+
+        private async void ProcessMartixDataQueue(object state)
+        {
+            // 批量处理队列中的数据
+            // 注意：这里的实现需要确保线程安全
+            while (!dataMartixQueue.IsEmpty)
+            {
+                if (dataMartixQueue.TryDequeue(out MartixPointStorage data))
+                {
+                    await semaphoreSlim.WaitAsync(); // 异步等待获取锁
+                    try
+                    {
+                        // 异步保存数据
+                        await SaveMartixDataAsync(data);
                     }
                     finally
                     {
@@ -1058,11 +1129,11 @@ namespace Pressure_t.Model
             }
 
         }
-        private string CreateFile()
+        private string CreateFile(string fileTitle)
         {
             // 获取当前日期并将其转换为字符串格式，例如 "2024-03-25"
             string date = DateTime.Now.ToString("yyyy-MM-dd");
-            string fileName = $"PressureSingleData-{date}.xlsx";  // 创建基于日期的文件名
+            string fileName = $"{fileTitle}-{date}.xlsx";  // 创建基于日期的文件名
 
             // 指定文件路径
             string documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
@@ -1080,8 +1151,6 @@ namespace Pressure_t.Model
 
             // 检查DataItems中是否包含该文件名
             bool fileExists = DataItems.Any(item => item.ExcelPath.Equals(filePath));
-
-
             MainThread.BeginInvokeOnMainThread(() =>
             {
                 if (false == fileExists)
@@ -1094,7 +1163,7 @@ namespace Pressure_t.Model
 
         }
 
-        private void SaveSingleData(string filePath, PointStorage data)
+        private void SaveSingleData(string filePath, SinglePointStorage data)
         {
 
             // 打开现有的工作簿并添加数据
@@ -1138,34 +1207,8 @@ namespace Pressure_t.Model
             }
         }
 
-        private async void SaveMartixData()
+        private async void SaveMartixData(string filePath, MartixPointStorage data)
         {
-            // 获取当前日期并将其转换为字符串格式，例如 "2024-03-25"
-            string date = DateTime.Now.ToString("yyyy-MM-dd");
-            string fileName = $"PressureMartixData-{date}.xlsx";  // 创建基于日期的文件名
-
-            // 指定文件路径
-            string documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            string filePath = Path.Combine(documentsPath, fileName);
-
-            // 检查文件是否存在，如果不存在则创建一个新的工作簿
-            if (!File.Exists(filePath))
-            {
-                using (var workbook = new XLWorkbook())
-                {
-                    workbook.AddWorksheet("Pressure Sheet");
-                    workbook.SaveAs(filePath);
-                }
-            }
-
-            // 检查DataItems中是否包含该文件名
-            bool fileExists = DataItems.Any(item => item.ExcelPath.Equals(filePath));
-
-            if (false == fileExists)
-            {
-                DataItems.Add(new DataExcelPath { ExcelPath = filePath });
-                OnPropertyChanged(nameof(DataItems));
-            }
 
             // 打开现有的工作簿并添加数据
             try
@@ -1226,49 +1269,49 @@ namespace Pressure_t.Model
                     {
                         // 要添加的数据
 
-                        if (IsLeftFoot)
+                        if (data.IsLeft)
                         {
                             worksheet.Cell("A" + nextRow).Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                            worksheet.Cell("B" + nextRow).Value = PressurePoints[0].MartixValueItem;
-                            worksheet.Cell("C" + nextRow).Value = PressurePoints[1].MartixValueItem;
-                            worksheet.Cell("D" + nextRow).Value = PressurePoints[2].MartixValueItem;
-                            worksheet.Cell("E" + nextRow).Value = PressurePoints[3].MartixValueItem;
-                            worksheet.Cell("F" + nextRow).Value = PressurePoints[4].MartixValueItem;
-                            worksheet.Cell("G" + nextRow).Value = PressurePoints[5].MartixValueItem;
-                            worksheet.Cell("H" + nextRow).Value = PressurePoints[6].MartixValueItem;
-                            worksheet.Cell("I" + nextRow).Value = PressurePoints[7].MartixValueItem;
-                            worksheet.Cell("J" + nextRow).Value = PressurePoints[8].MartixValueItem;
-                            worksheet.Cell("K" + nextRow).Value = PressurePoints[9].MartixValueItem;
-                            worksheet.Cell("L" + nextRow).Value = PressurePoints[10].MartixValueItem;
-                            worksheet.Cell("M" + nextRow).Value = PressurePoints[11].MartixValueItem;
-                            worksheet.Cell("N" + nextRow).Value = PressurePoints[12].MartixValueItem;
-                            worksheet.Cell("O" + nextRow).Value = PressurePoints[13].MartixValueItem;
-                            worksheet.Cell("P" + nextRow).Value = PressurePoints[14].MartixValueItem;
-                            worksheet.Cell("Q" + nextRow).Value = PressurePoints[15].MartixValueItem;
-                            worksheet.Cell("R" + nextRow).Value = PressurePoints[16].MartixValueItem;
-                            worksheet.Cell("S" + nextRow).Value = PressurePoints[17].MartixValueItem;
+                            worksheet.Cell("B" + nextRow).Value = data.MartixPointArray[0];
+                            worksheet.Cell("C" + nextRow).Value = data.MartixPointArray[1];
+                            worksheet.Cell("D" + nextRow).Value = data.MartixPointArray[2];
+                            worksheet.Cell("E" + nextRow).Value = data.MartixPointArray[3];
+                            worksheet.Cell("F" + nextRow).Value = data.MartixPointArray[4];
+                            worksheet.Cell("G" + nextRow).Value = data.MartixPointArray[5];
+                            worksheet.Cell("H" + nextRow).Value = data.MartixPointArray[6];
+                            worksheet.Cell("I" + nextRow).Value = data.MartixPointArray[7];
+                            worksheet.Cell("J" + nextRow).Value = data.MartixPointArray[8];
+                            worksheet.Cell("K" + nextRow).Value = data.MartixPointArray[9];
+                            worksheet.Cell("L" + nextRow).Value = data.MartixPointArray[10];
+                            worksheet.Cell("M" + nextRow).Value = data.MartixPointArray[11];
+                            worksheet.Cell("N" + nextRow).Value = data.MartixPointArray[12];
+                            worksheet.Cell("O" + nextRow).Value = data.MartixPointArray[13];
+                            worksheet.Cell("P" + nextRow).Value = data.MartixPointArray[14];
+                            worksheet.Cell("Q" + nextRow).Value = data.MartixPointArray[15];
+                            worksheet.Cell("R" + nextRow).Value = data.MartixPointArray[16];
+                            worksheet.Cell("S" + nextRow).Value = data.MartixPointArray[17];
                         }
-                        if (IsRightFoot)
+                        if (data.IsRight)
                         {
                             worksheet.Cell("A" + nextRow).Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                            worksheet.Cell("T" + nextRow).Value = PressurePoints[0].MartixValueItem;
-                            worksheet.Cell("U" + nextRow).Value = PressurePoints[1].MartixValueItem;
-                            worksheet.Cell("V" + nextRow).Value = PressurePoints[2].MartixValueItem;
-                            worksheet.Cell("W" + nextRow).Value = PressurePoints[3].MartixValueItem;
-                            worksheet.Cell("X" + nextRow).Value = PressurePoints[4].MartixValueItem;
-                            worksheet.Cell("Y" + nextRow).Value = PressurePoints[5].MartixValueItem;
-                            worksheet.Cell("Z" + nextRow).Value = PressurePoints[6].MartixValueItem;
-                            worksheet.Cell("AA" + nextRow).Value = PressurePoints[7].MartixValueItem;
-                            worksheet.Cell("AB" + nextRow).Value = PressurePoints[8].MartixValueItem;
-                            worksheet.Cell("AC" + nextRow).Value = PressurePoints[9].MartixValueItem;
-                            worksheet.Cell("AD" + nextRow).Value = PressurePoints[10].MartixValueItem;
-                            worksheet.Cell("AE" + nextRow).Value = PressurePoints[11].MartixValueItem;
-                            worksheet.Cell("AF" + nextRow).Value = PressurePoints[12].MartixValueItem;
-                            worksheet.Cell("AG" + nextRow).Value = PressurePoints[13].MartixValueItem;
-                            worksheet.Cell("AH" + nextRow).Value = PressurePoints[14].MartixValueItem;
-                            worksheet.Cell("AI" + nextRow).Value = PressurePoints[15].MartixValueItem;
-                            worksheet.Cell("AJ" + nextRow).Value = PressurePoints[16].MartixValueItem;
-                            worksheet.Cell("AK" + nextRow).Value = PressurePoints[17].MartixValueItem;
+                            worksheet.Cell("T" + nextRow).Value = data.MartixPointArray[0];
+                            worksheet.Cell("U" + nextRow).Value = data.MartixPointArray[1];
+                            worksheet.Cell("V" + nextRow).Value = data.MartixPointArray[2];
+                            worksheet.Cell("W" + nextRow).Value = data.MartixPointArray[3];
+                            worksheet.Cell("X" + nextRow).Value = data.MartixPointArray[4];
+                            worksheet.Cell("Y" + nextRow).Value = data.MartixPointArray[5];
+                            worksheet.Cell("Z" + nextRow).Value = data.MartixPointArray[6];
+                            worksheet.Cell("AA" + nextRow).Value = data.MartixPointArray[7];
+                            worksheet.Cell("AB" + nextRow).Value = data.MartixPointArray[8];
+                            worksheet.Cell("AC" + nextRow).Value = data.MartixPointArray[9];
+                            worksheet.Cell("AD" + nextRow).Value = data.MartixPointArray[10];
+                            worksheet.Cell("AE" + nextRow).Value = data.MartixPointArray[11];
+                            worksheet.Cell("AF" + nextRow).Value = data.MartixPointArray[12];
+                            worksheet.Cell("AG" + nextRow).Value = data.MartixPointArray[13];
+                            worksheet.Cell("AH" + nextRow).Value = data.MartixPointArray[14];
+                            worksheet.Cell("AI" + nextRow).Value = data.MartixPointArray[15];
+                            worksheet.Cell("AJ" + nextRow).Value = data.MartixPointArray[16];
+                            worksheet.Cell("AK" + nextRow).Value = data.MartixPointArray[17];
                         }
 
                     }
