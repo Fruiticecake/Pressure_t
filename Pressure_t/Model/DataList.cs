@@ -40,35 +40,6 @@ namespace Pressure_t.Model
             return await Application.Current.MainPage.DisplayAlert(title, message, accept, cancel);
         }
     }
-
-    public class FootDrawable : IDrawable
-    {
-        public void Draw(ICanvas canvas, RectF dirtyRect)
-        {
-            canvas.SaveState();
-
-            // 设置画笔颜色
-            canvas.StrokeColor = Colors.Black;
-            canvas.FillColor = Colors.LightBlue;
-
-            // 绘制左脚的轮廓，你需要根据实际需要调整路径
-            PathF path = new PathF();
-            path.MoveTo(100, 100); // 移动到起始点
-            path.LineTo(150, 100); // 脚后跟到脚踝
-            path.QuadTo(180, 90, 200, 120); // 脚踝到脚背
-            path.QuadTo(160, 180, 130, 120); // 脚背到大脚趾
-            path.QuadTo(120, 140, 110, 120); // 大脚趾到第二脚趾
-            path.QuadTo(100, 140, 90, 120); // 第二脚趾到第三脚趾
-            path.QuadTo(80, 140, 70, 120); // 第三脚趾到第四脚趾
-            path.QuadTo(60, 140, 50, 120); // 第四脚趾到小脚趾
-            path.QuadTo(40, 180, 100, 100); // 小脚趾回到脚后跟
-
-            // 使用路径绘制形状
-            canvas.DrawPath(path);
-
-            canvas.RestoreState();
-        }
-    }
     public class PressurePoint : INotifyPropertyChanged
     {
         public Color GetColorFromPressure(double pressure)
@@ -307,7 +278,7 @@ namespace Pressure_t.Model
             }
         }
 
-        private int _sampleRateSelectedIndex;
+        private int _sampleRateSelectedIndex = 2;
         public int SampleRateSelectedIndex
         {
             get => _sampleRateSelectedIndex;
@@ -415,8 +386,8 @@ namespace Pressure_t.Model
             }
         }
 
-        private ObservableCollection<int> _sampleRate;
-        public ObservableCollection<int> SampleRate
+        private ObservableCollection<string> _sampleRate;
+        public ObservableCollection<string> SampleRate
         {
             get => _sampleRate;
             set
@@ -666,17 +637,19 @@ namespace Pressure_t.Model
                 230400  // 高速连接，用于高速数据传输需求
             };
 
-            SampleRate = new ObservableCollection<int>
+            SampleRate = new ObservableCollection<string>
             {
-                8000,    // 电话质量，足以传递语音但缺乏细节
-                11025,   // 低质量音频，早期电脑游戏常用
-                16000,   // 较好的语音质量，适用于VoIP等
-                22050,   // AM广播质量，也用于一些低质量音频处理
-                32000,   // FM广播的近似质量，用于某些视频的音频轨
-                44100,   // CD质量，成为数字音频处理的标准采样率
-                48000,   // 专业音频和视频的标准采样率，广泛用于电影和DVD
-                88200   // 高分辨率音频，用于专业音频编辑和处理
+                // 高采样率
+                "50 KSPS",  // 每秒5万次
+                "100 KSPS", // 每秒10万次
+                "500 KSPS", // 每秒50万次
+    
+                // 非常高的采样率（取决于具体的STM32型号和配置）
+                "1 MSPS", // 每秒100万次
+                "2.4 MSPS", // stm32F401
             };
+
+
 
             RefVoltage = new ObservableCollection<double>
             {
