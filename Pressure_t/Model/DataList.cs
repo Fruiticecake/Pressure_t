@@ -242,6 +242,7 @@ namespace Pressure_t.Model
             {
                 PressurePoints.Add(new PressurePoint());
             }
+
             MartixSettingCommand = new Command<string>(OnMartixSettingCommand);
             DataSaveCommand = new Command(OnDataSaveClicked);
             DataClearCommand = new Command(OnDataClearClicked);
@@ -1378,7 +1379,25 @@ namespace Pressure_t.Model
                 await _dialogService.ShowAlertAsync("", "请先选中需要删除的数据", "确认", "关闭");
             }
         }
+        private void RemoveToSeries(LineSeries<ObservablePoint> series)
+        {
+            if (series.Values is ObservableCollection<ObservablePoint> values)
+            {
+                values.Clear();
+            }
+        }
+        private void RemoveChartData()
+        {
+            // 主线程中执行UI更新
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                RemoveToSeries((LineSeries<ObservablePoint>)Series[0]);
+                RemoveToSeries((LineSeries<ObservablePoint>)Series[1]);
+                RemoveToSeries((LineSeries<ObservablePoint>)ScrollbarSeries[0]);
+                RemoveToSeries((LineSeries<ObservablePoint>)ScrollbarSeries[1]);
 
+            });
+        }
         private async void OnDataClearAllClicked()
         {
             bool reply;
@@ -1388,58 +1407,50 @@ namespace Pressure_t.Model
             {
                 //DataItems.Clear();
                 DataExcelPathListSelectedIndex = null;
-                PressureNumeric = 0;
-                RTANumeric = 0;
-                RTVNumeric = 0;
-                numCount = 0;
-                if (Series[0] is LineSeries<ObservablePoint> lineSeries)
-                {
-                    if (lineSeries.Values is ObservableCollection<ObservablePoint> values)
-                    {
-                        values.Clear();
-                    }
-                }
-                if (Series[1] is LineSeries<ObservablePoint> lineDoubleSeries)
-                {
-                    if (lineDoubleSeries.Values is ObservableCollection<ObservablePoint> values)
-                    {
-                        values.Clear();
-                    }
-                }
+                
+                SingleModelInit();
+                RemoveChartData();
 
-                if (ScrollbarSeries.FirstOrDefault() is PolarLineSeries<int> polarLineSeries)
+                if (Series.FirstOrDefault() is PolarLineSeries<int> polarLineSeries)
                 {
                     if (polarLineSeries.Values is ObservableCollection<int> values)
                     {
                         values.Clear();
                     }
                 }
-                if (ScrollbarSeries[0] is LineSeries<ObservablePoint> scrollbarSeries)
+                // 更新 X 轴范围
+                if (ScrollableAxes.Any())
                 {
-                    if (scrollbarSeries.Values is ObservableCollection<ObservablePoint> values)
-                    {
-                        values.Clear();
-                    }
+                    var xAxis = ScrollableAxes.First();
+                    // 假设您想要将 X 轴范围重置为默认或根据新数据计算的值
+                    xAxis.MinLimit = null; // 或设置为新的最小值
+                    xAxis.MaxLimit = null; // 或设置为新的最大值
+
+                    // 通知图表控件 X 轴已更新（如果需要）
+                    OnPropertyChanged(nameof(ScrollableAxes));
                 }
 
-                if (ScrollbarSeries[1] is LineSeries<ObservablePoint> scrollbarDoubleSeries)
-                {
-                    if (scrollbarDoubleSeries.Values is ObservableCollection<ObservablePoint> values)
-                    {
-                        values.Clear();
-                    }
-                }
             }
 
             // 通知视图更新
             OnPropertyChanged(nameof(Series));
         }
 
+        private void SingleModelInit()
+        {
+            PressureNumeric = 0;
+            RTANumeric = 0;
+            RTVNumeric = 0;
+            numCount = 0;
+        }
+
+
         public void OnModeButtonClicked()
         {
             if ("SingleMode" == ModeText)
             {
                 ModeText = "MartixMode";
+
                 IsSingleMode = false;
                 Series = new ObservableCollection<ISeries>
                 {
@@ -1465,6 +1476,7 @@ namespace Pressure_t.Model
                 //        Fill = new SolidColorPaint(SKColors.CornflowerBlue)
                 //    }
                 //};
+                SingleModelInit();
 
                 Series = new ObservableCollection<ISeries>
                 {
@@ -1543,22 +1555,17 @@ namespace Pressure_t.Model
                     }
                 };
 
-
-                ScrollableAxes = new[] { new Axis() };
-
-                Thumbs = new[]
+                // 更新 X 轴范围
+                if (ScrollableAxes.Any())
                 {
-                    new RectangularSection
-                    {
-                        Fill = new SolidColorPaint(new SKColor(255, 205, 210, 100))
-                    }
-                };
+                    var xAxis = ScrollableAxes.First();
+                    // 假设您想要将 X 轴范围重置为默认或根据新数据计算的值
+                    xAxis.MinLimit = null; // 或设置为新的最小值
+                    xAxis.MaxLimit = null; // 或设置为新的最大值
+                }
 
-                InvisibleX = new[] { new Axis { IsVisible = false } };
-                InvisibleY = new[] { new Axis { IsVisible = false } };
-
-                var auto = LiveChartsCore.Measure.Margin.Auto;
-                Margin = new(100, auto, 50, auto);
+                OnPropertyChanged(nameof(ScrollableAxes));
+                OnPropertyChanged(nameof(Series));
             }
         }
 
