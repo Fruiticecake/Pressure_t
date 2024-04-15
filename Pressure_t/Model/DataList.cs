@@ -871,7 +871,7 @@ namespace Pressure_t.Model
                 // 通知视图更新
                 // OnPropertyChanged(nameof(Series));
 
-                string[] pressureValues = data.Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries);
+                string[] pressureValues = data.Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries);
                 string filePath = CreateFile("PressureMartixData");
 
                 MainThread.BeginInvokeOnMainThread(() =>
