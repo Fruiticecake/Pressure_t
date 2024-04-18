@@ -388,7 +388,7 @@
 
             <Label Text="www.ks-chip.com" TextColor="DarkRed" FontSize="Micro"  Grid.Column="0" Margin="20, 0, 0, 0" HorizontalTextAlignment="Start" />
             <Label Text="copyright@Kingsense" TextColor="DarkRed" FontSize="Micro" Grid.Column="1" HorizontalTextAlignment="Center" />
-            <Label Text="Version-1.5" TextColor="DarkRed" FontSize="Micro" Grid.Column="2" Margin="0, 0, 20, 0" HorizontalTextAlignment="End" />
+            <Label Text="Version-1.6" TextColor="DarkRed" FontSize="Micro" Grid.Column="2" Margin="0, 0, 20, 0" HorizontalTextAlignment="End" />
         </Grid>
 
     </VerticalStackLayout>

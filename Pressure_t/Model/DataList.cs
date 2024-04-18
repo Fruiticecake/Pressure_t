@@ -23,7 +23,7 @@ using ClosedXML.Excel;
 using System.Linq;
 using System.Collections.Concurrent;
 using System.Threading;
-using Timer = System.Threading.Timer;
+//using DocumentFormat.OpenXml.Spreadsheet;
 
 namespace Pressure_t.Model
 {
@@ -99,8 +99,9 @@ namespace Pressure_t.Model
         private ConcurrentQueue<MartixPointStorage> dataMartixQueue = new ConcurrentQueue<MartixPointStorage>();
 
         private SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1, 1);
-        private Timer FileSaveTimer;
-        private Timer FileMartixSaveTimer;
+        private System.Threading.Timer FileSaveTimer;
+        private System.Threading.Timer FileMartixSaveTimer;
+        private System.Timers.Timer refreshTimer;
 
         // public ObservableCollection<PressurePoint> PressurePoints { get; set; }
 
@@ -139,8 +140,8 @@ namespace Pressure_t.Model
         {
             _dialogService = dialogService;
             PickerCOMInit();
-            FileSaveTimer = new Timer(ProcessDataQueue, null, 0, 1000);
-            FileMartixSaveTimer = new Timer(ProcessMartixDataQueue, null, 0, 1000);
+            FileSaveTimer = new System.Threading.Timer(ProcessDataQueue, null, 0, 1000);
+            FileMartixSaveTimer = new System.Threading.Timer(ProcessMartixDataQueue, null, 0, 1000);
 
             Series = new ObservableCollection<ISeries>
                 {
@@ -665,40 +666,80 @@ namespace Pressure_t.Model
 
             ConnectCommand = new Command(ConnectToSerialPort);
 
-            /*            // 设置定时器以定期刷新串口列表
-                        refreshTimer = new Timer(5000); // 设置定时器的间隔时间，例如5000毫秒（5秒）
-                        refreshTimer.Elapsed += OnTimedEvent; // 每当指定的时间间隔完成时执行的事件
-                        refreshTimer.AutoReset = true; // 设置是否重复执行
-                        refreshTimer.Enabled = true; // 启动定时器*/
+            // 设置定时器以定期刷新串口列表
+            refreshTimer = new System.Timers.Timer(3000); // 设置定时器的间隔时间，例如3000毫秒（3秒）
+            refreshTimer.Elapsed += OnTimedEvent; // 每当指定的时间间隔完成时执行的事件
+            refreshTimer.AutoReset = true; // 设置是否重复执行
+            refreshTimer.Enabled = true; // 启动定时器
 
 
             GetAllPortNames(); // 初始调用以填充列表
-
+            isInitLive = true;
         }
 
         private void OnTimedEvent(Object source, ElapsedEventArgs e)
         {
             GetAllPortNames(); // 定期调用以刷新串口列表
         }
-
+        bool isInitLive = false;
         public void GetAllPortNames()
         {
-            string[] portNames = SerialPort.GetPortNames();
-
-            // 添加新的串口到列表
-            foreach (var portName in portNames)
+            string[] portNames = new string[0];
+            try
             {
-                try
-                {
-                    // 尝试添加串口到列表
-                    AvailableCOM.Add(portName);
-                }
-                catch (COMException ex)
-                {
-                    // 可以记录异常信息，或者通知用户某个串口无法访问
-                    Debug.WriteLine($"Error accessing COM port {portName}: {ex.Message}");
-                }
+                portNames = SerialPort.GetPortNames(); // 尝试获取当前可用的串行端口
             }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error getting COM ports: {ex.Message}");
+                return;
+            }
+            //// 添加新的串口到列表
+            //foreach (var portName in portNames)
+            //{
+            //    try
+            //    {
+            //        // 尝试添加串口到列表
+            //        AvailableCOM.Add(portName);
+            //    }
+            //    catch (COMException ex)
+            //    {
+            //        // 可以记录异常信息，或者通知用户某个串口无法访问
+            //        Debug.WriteLine($"Error accessing COM port {portName}: {ex.Message}");
+            //    }
+            //}
+
+            MainThread.BeginInvokeOnMainThread(async () =>
+            {
+                var currentPorts = new HashSet<string>(portNames);
+                for (int i = AvailableCOM.Count - 1; i >= 0; i--)
+                {
+                    if (!currentPorts.Contains(AvailableCOM[i]))
+                    {
+                        if (isInitLive)
+                        {
+                            await Application.Current.MainPage.DisplayAlert("串口通知", $"检测到串口{AvailableCOM[i]}已拔出！", "确定", "关闭");
+                        }
+                        AvailableCOM.RemoveAt(i); // 移除不再存在的串行端口
+                    }
+                }
+
+                foreach (var portName in portNames)
+                {
+                    if (!AvailableCOM.Contains(portName))
+                    {
+                        if (isInitLive)
+                        {
+                            await Application.Current.MainPage.DisplayAlert("串口通知", $"检测到新的串口{portName}插入！", "确定", "关闭");
+                        }
+                        
+                        AvailableCOM.Add(portName); // 添加新的串口到列表
+                    }
+                }
+
+            });
+
+
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -872,20 +913,28 @@ namespace Pressure_t.Model
                 // OnPropertyChanged(nameof(Series));
 
                 string[] pressureValues = data.Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries);
-                string filePath = CreateFile("PressureMartixData");
-
+                //string filePath = CreateFile("PressureMartixData");
+                int number;
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
-                    // Debug.WriteLine(string.Join(", ", pressureValues));
+                    //Debug.WriteLine(string.Join(", ", pressureValues));
                     if (pressureValues.Length == 18)
                     {
                         for (int i = 0; i < 18; i++)
                         {
                             // 更新压力值，并通知UI
                             // UpdatePressurePoint(i, double.Parse(pressureValues[i]));
-                            PressurePoints[i].MartixValueItem = int.Parse(pressureValues[i]);
-                            // Debug.WriteLine(PressurePoints[i].MartixValueItem);
                             
+                            //Debug.WriteLine(PressurePoints[i].MartixValueItem);
+                            bool success = int.TryParse(pressureValues[i], out number);
+                            if (success)
+                            {
+                                PressurePoints[i].MartixValueItem = number;
+                            }
+                            else
+                            {
+                                // 处理无法转换的情况
+                            }
                         }
                         ReciveMartixData(pressureValues);
                         // SaveMartixData(filePath);
@@ -1022,7 +1071,11 @@ namespace Pressure_t.Model
         private void ReciveMartixData(string[] pressureValues)
         {
             // 将字符串数组转换为整数数组
-            int[] _martixPointArray = Array.ConvertAll(pressureValues, int.Parse);
+            //int[] _martixPointArray = Array.ConvertAll(pressureValues, int.Parse);
+            int[] _martixPointArray = pressureValues
+                            .Where(pv => int.TryParse(pv, out _))
+                            .Select(pv => int.Parse(pv))
+                            .ToArray();
 
             MartixPointStorage data = new MartixPointStorage()
             {
