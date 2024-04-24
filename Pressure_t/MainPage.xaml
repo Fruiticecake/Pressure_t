@@ -304,7 +304,7 @@
                     <Label Text="RT_V" VerticalOptions="Center" FontSize="18" TextColor="{StaticResource Title_Color}"/>
                     <Entry Text="{Binding RTVNumeric}" IsReadOnly="True" HorizontalTextAlignment="Center" WidthRequest="70" BackgroundColor="White" TextColor="#B75738"/>
                 </HorizontalStackLayout>
-                <Button x:Name="SetMartixLeft" Text="SetLeftFoot"
+                <Button x:Name="SetMartixLeft" Text="Left_Foot"
                     TextColor="{Binding ButtonTextColor_MartixLeft}"
                     CornerRadius="5"
                     Command="{Binding MartixSettingCommand}"
@@ -315,7 +315,7 @@
                     BorderWidth="2"
                     >
                 </Button>
-                <Button x:Name="SetMartixRight" Text="SetRightFoot"
+                <Button x:Name="SetMartixRight" Text="Right_Foot"
                     TextColor="{Binding ButtonTextColor_MartixRight}"
                     CornerRadius="5"
                     Command="{Binding MartixSettingCommand}"
@@ -388,7 +388,7 @@
 
             <Label Text="www.ks-chip.com" TextColor="DarkRed" FontSize="Micro"  Grid.Column="0" Margin="20, 0, 0, 0" HorizontalTextAlignment="Start" />
             <Label Text="copyright@Kingsense" TextColor="DarkRed" FontSize="Micro" Grid.Column="1" HorizontalTextAlignment="Center" />
-            <Label Text="Version-1.6" TextColor="DarkRed" FontSize="Micro" Grid.Column="2" Margin="0, 0, 20, 0" HorizontalTextAlignment="End" />
+            <Label Text="Version-1.7" TextColor="DarkRed" FontSize="Micro" Grid.Column="2" Margin="0, 0, 20, 0" HorizontalTextAlignment="End" />
         </Grid>
 
     </VerticalStackLayout>

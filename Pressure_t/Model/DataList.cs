@@ -269,7 +269,7 @@ namespace Pressure_t.Model
             }
         }
 
-        private int _baudRateSelectedIndex = 5;
+        private int _baudRateSelectedIndex = 3;
         public int BaudRateSelectedIndex
         {
             get => _baudRateSelectedIndex;
@@ -280,7 +280,7 @@ namespace Pressure_t.Model
             }
         }
 
-        private int _sampleRateSelectedIndex = 2;
+        private int _sampleRateSelectedIndex = 1;
         public int SampleRateSelectedIndex
         {
             get => _sampleRateSelectedIndex;
@@ -631,8 +631,6 @@ namespace Pressure_t.Model
             BaudRate = new ObservableCollection<int>
             {
                 9600,   // 常见的低速连接，许多基础项目默认速率
-                14400,  // 早期调制解调器使用的速度
-                19200,  // 中速连接，常用于工业设备
                 38400,  // 中等速度连接，更多的设备支持
                 57600,  // 较高速度，用于快速数据传输
                 115200, // 高速连接，常见于现代设备
@@ -641,14 +639,18 @@ namespace Pressure_t.Model
 
             SampleRate = new ObservableCollection<string>
             {
+                "10-100",
+                "500-1000",
+                "1000-5000"
+
                 // 高采样率
-                "50 KSPS",  // 每秒5万次
-                "100 KSPS", // 每秒10万次
-                "500 KSPS", // 每秒50万次
+                //"50 KSPS",  // 每秒5万次
+                //"100 KSPS", // 每秒10万次
+                //"500 KSPS", // 每秒50万次
     
                 // 非常高的采样率（取决于具体的STM32型号和配置）
-                "1 MSPS", // 每秒100万次
-                "2.4 MSPS", // stm32F401
+                //"1 MSPS", // 每秒100万次
+                //"2.4 MSPS", // stm32F401
             };
 
 
