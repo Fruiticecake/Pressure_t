@@ -988,7 +988,8 @@ namespace Pressure_t.Model
             {
                 RTANumeric = numericValue;
                 RTVNumeric = RTANumeric * (RefVoltage[RefSelectedIndex] / 4095);
-                PressureNumeric = (10 * RTVNumeric) / RefVoltage[RefSelectedIndex];
+                //Math.Exp((y + 0.4059) / 0.5413)
+                PressureNumeric = Math.Exp((RTVNumeric + 0.4059) / 0.5413);
             }
             else
             {
