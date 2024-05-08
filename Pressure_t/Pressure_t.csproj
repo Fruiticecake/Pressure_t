@@ -39,6 +39,10 @@
 		<HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
 	</PropertyGroup>
 
+	<PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows' and '$(RuntimeIdentifierOverride)' != ''">
+		<RuntimeIdentifier>$(RuntimeIdentifierOverride)</RuntimeIdentifier>
+	</PropertyGroup>
+
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0-ios|AnyCPU'">
 	  <CreatePackage>false</CreatePackage>
 	</PropertyGroup>
@@ -60,10 +64,10 @@
 		<MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
 	</ItemGroup>
 	<ItemGroup>
-	  <None Remove="Resources\AppIcon\title_logo.jpg" />
+	  <None Remove="Resources\AppIcon\title_1.ico" />
 	</ItemGroup>
 	<ItemGroup>
-	  <MauiImage Include="Resources\AppIcon\title_logo.jpg" />
+	  <MauiImage Include="Resources\AppIcon\title_1.ico" />
 	</ItemGroup>
 
 	<ItemGroup>
