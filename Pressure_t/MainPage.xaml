@@ -351,6 +351,9 @@
                         FontSize="18"
                         ItemsSource="{Binding SampleRate}"
                         SelectedIndex="{Binding SampleRateSelectedIndex, Mode=TwoWay}">
+                    <Picker.ItemDisplayBinding>
+                        <Binding StringFormat="{}{0} SPS" />
+                    </Picker.ItemDisplayBinding>
                 </Picker>
                 <!--<Picker x:Name="SampleRate"
                     ItemsSource="{Binding SampleRate}" 
@@ -386,9 +389,9 @@
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <Label Text="www.ks-chip.com" TextColor="DarkRed" FontSize="Micro"  Grid.Column="0" Margin="20, 0, 0, 0" HorizontalTextAlignment="Start" />
-            <Label Text="copyright@Kingsense" TextColor="DarkRed" FontSize="Micro" Grid.Column="1" HorizontalTextAlignment="Center" />
-            <Label Text="Version-1.7" TextColor="DarkRed" FontSize="Micro" Grid.Column="2" Margin="0, 0, 20, 0" HorizontalTextAlignment="End" />
+            <Label Text="www.ks-chip.com" TextColor="DarkRed" FontSize="Default"  Grid.Column="0" Margin="20, 0, 0, 0" HorizontalTextAlignment="Start" />
+            <Label Text="copyright@Kingsense" TextColor="DarkRed" FontSize="Default" Grid.Column="1" HorizontalTextAlignment="Center" />
+            <Label Text="Version-1.7" TextColor="DarkRed" FontSize="Default" Grid.Column="2" Margin="0, 0, 20, 0" HorizontalTextAlignment="End" />
         </Grid>
 
     </VerticalStackLayout>

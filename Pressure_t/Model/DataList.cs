@@ -280,7 +280,7 @@ namespace Pressure_t.Model
             }
         }
 
-        private int _sampleRateSelectedIndex = 1;
+        private int _sampleRateSelectedIndex = 0;
         public int SampleRateSelectedIndex
         {
             get => _sampleRateSelectedIndex;
@@ -291,7 +291,7 @@ namespace Pressure_t.Model
             }
         }
 
-        private int _refSelectedIndex = 4;
+        private int _refSelectedIndex = 1;
         public int RefSelectedIndex
         {
             get => _refSelectedIndex;
@@ -639,9 +639,10 @@ namespace Pressure_t.Model
 
             SampleRate = new ObservableCollection<string>
             {
-                "10-100",
-                "500-1000",
-                "1000-5000"
+                "200",
+                "500",
+                "1000",
+                "2500"
 
                 // 高采样率
                 //"50 KSPS",  // 每秒5万次
@@ -657,13 +658,13 @@ namespace Pressure_t.Model
 
             RefVoltage = new ObservableCollection<double>
             {
-                1.0,    // 1.0V，用于低压应用
+                //1.0,    // 1.0V，用于低压应用
                 1.8,    // 1.8V，常见于某些低功耗设备
-                2.5,    // 2.5V，适用于中等范围的应用
-                3.0,    // 3.0V，常用于电池供电的设备
+                //2.5,    // 2.5V，适用于中等范围的应用
+                //3.0,    // 3.0V，常用于电池供电的设备
                 3.3,    // 3.3V，广泛用于逻辑电路和数字系统
                 5.0,    // 5.0V，经典的电压值，用于许多传统和现代电子设备
-                9.0    // 9.0V，常见于电池供电和一些模拟电路
+                //9.0    // 9.0V，常见于电池供电和一些模拟电路
             };
 
             ConnectCommand = new Command(ConnectToSerialPort);
